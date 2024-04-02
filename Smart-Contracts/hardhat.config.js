@@ -16,7 +16,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const gasPrice = 300000000000 // 300 gwei
 module.exports = {
-  solidity: "0.8.19",
+  solidity: "0.8.20",
   defaultNetwork: NETWORK,
   abiExporter: {
     path: './abi',

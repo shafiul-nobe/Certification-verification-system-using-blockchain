@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -9,7 +9,6 @@ error InvalidModerator();
 error InvalidProgram();
 error InvalidInstituition();
 error InvalidVerifier();
-error ValueCanNotBeZero();
 error AlreadyVerified();
 
 contract certificate_verification is Ownable {
@@ -73,7 +72,7 @@ contract certificate_verification is Ownable {
         string graduationDate;
         string dateOfBirth;
         uint256 programId;
-        uint256 institutionId;
+        uint256 _institutionId;
         string ipfsUrl;
         address applicant;
     }
@@ -81,9 +80,9 @@ contract certificate_verification is Ownable {
     uint256 public totalInstitution = 0;
     address payable public withdrawalWallet;
     mapping(address => bool) public moderators;
-    mapping(uint256 => institution) institutions;
+    mapping(uint256 => Institution) public institutions;
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         withdrawalWallet = payable(msg.sender);
     }
     /// @notice Transfer balance on this contract to withdrawal address
@@ -102,75 +101,74 @@ contract certificate_verification is Ownable {
     }
 
     function addInstitution(
-        string _name,
-        string _location,
-        string _country,
+        string memory _name,
+        string memory _location,
+        string memory _country,
         address _withdrawalWallet,
         uint256 _applicationFee
     ) external validModerator(msg.sender) validAddress(_withdrawalWallet) {
         unchecked {
             totalInstitution++;
         }
-        institutions[totalInstitution] = Institution(
-            totalInstitution,
-            _name,
-            _location,
-            _country,
-            _withdrawalWallet,
-            _applicationFee,
-            0
-        );
+        Institution storage newInstitution = institutions[totalInstitution];
+        newInstitution.id = totalInstitution;
+        newInstitution.name = _name;
+        newInstitution.location = _location;
+        newInstitution.country = _country;
+        newInstitution.withdrawalWallet = _withdrawalWallet;
+        newInstitution.APPLICATION_FEE = _applicationFee;
+        newInstitution.totalPrograms = 0;
     }
 
     function setInstitutiontWithdrawalWallet(
-        uint256 institutionId,
+        uint256 _institutionId,
         address _wallet
     )
         external
         validModerator(msg.sender)
         validAddress(_wallet)
-        validInstitution(institutionId)
+        validInstitution(_institutionId)
     {
-        institutions[institutionId].withdrawalWallet = _wallet;
+        institutions[_institutionId].withdrawalWallet = _wallet;
     }
 
     function setPrimaryVerifier(
-        uint256 instituionId,
+        uint256 _institutionId,
         address _wallet,
         bool _flag
     )
         external
         validModerator(msg.sender)
         validAddress(_wallet)
-        validInstitution(institutionId)
+        validInstitution(_institutionId)
     {
-        institutions[institutionId].primaryVerifiers[_wallet] = _flag;
+        institutions[_institutionId].primaryVerifiers[_wallet] = _flag;
     }
 
     function setSecondaryVerifier(
-        uint256 instituionId,
+        uint256 _institutionId,
         address _wallet,
         bool _flag
     )
         external
         validModerator(msg.sender)
         validAddress(_wallet)
-        validInstitution(institutionId)
+        validInstitution(_institutionId)
     {
-        institutions[institutionId].secondaryVerifiers[_wallet] = _flag;
+        institutions[_institutionId].secondaryVerifiers[_wallet] = _flag;
     }
 
     function addPrograms(
-        uint256 instituionId,
-        string _programType,
-        string _title,
-        string _major
-    ) external validModerator(msg.sender) validInstitution(institutionId) {
+        uint256 _institutionId,
+        string memory _programType,
+        string memory _title,
+        string memory _major
+    ) external validModerator(msg.sender) validInstitution(_institutionId) {
         unchecked {
-            institutions[institutionId].totalPrograms++;
+            institutions[_institutionId].totalPrograms++;
         }
-        institutions[institutionId].programs[institutions[institutionId].totalPrograms] = Program(
-            institutions[institutionId].totalPrograms,
+        institutions[_institutionId].programs[institutions[_institutionId].totalPrograms] = Program(
+            institutions[_institutionId].totalPrograms,
             _programType,
             _title,
             _major
