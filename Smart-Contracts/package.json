@@ -20,6 +20,7 @@
     "@nomicfoundation/hardhat-verify": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "@openzeppelin/contracts": "^5.0.2",
     "chai": "^4.2.0",
     "dotenv": "^16.4.5",
     "ethereum-unit-converter": "^0.0.17",
