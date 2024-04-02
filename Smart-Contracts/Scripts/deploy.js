@@ -19,10 +19,10 @@ async function main() {
   // We get the contract to deploy
 
   const Contract = await hre.ethers.getContractFactory("Lock");
-  const contract = await Contract.deploy(12414);
-  await contract.deployed();
+  const contract = await Contract.deploy(1743617300);
+  await contract.waitForDeployment();
 
-  console.log("Smart Contract deployed to:", contract.address);
+  console.log("Smart Contract deployed to:", contract.target);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
