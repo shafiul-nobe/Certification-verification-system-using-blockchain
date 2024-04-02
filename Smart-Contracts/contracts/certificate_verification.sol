@@ -56,8 +56,8 @@ contract certificate_verification is Ownable {
         string name;
         string location;
         string country;
-        address withdrawalWallet;
-        uint256 APPLICATION_FEE;
+        address payable withdrawalWallet;
+        uint256 applicationFee;
         uint256 totalPrograms;
         mapping(uint256 => Program) programs;
         mapping(address => bool) primaryVerifiers;
@@ -72,15 +72,33 @@ contract certificate_verification is Ownable {
         string graduationDate;
         string dateOfBirth;
         uint256 programId;
-        uint256 _institutionId;
+        uint256 institutionId;
         string ipfsUrl;
         address applicant;
+        bool primaryVerified;
+        bool verified;
     }
 
+    uint256 public totalCertificate = 0;
+    uint256 public totalVerified = 0;
     uint256 public totalInstitution = 0;
     address payable public withdrawalWallet;
     mapping(address => bool) public moderators;
     mapping(uint256 => Institution) public institutions;
+    mapping(uint256 => Certificate) public certificates;
+
+    event CertificateCreated(
+        uint256 id,
+        string serialnumber,
+        uint256 studentName,
+        string studentId,
+        string graduationDate,
+        string dateOfBirth,
+        uint256 programId,
+        uint256 institutionId,
+        string ipfsUrl,
+        address applicant
+    );
 
     constructor() Ownable(msg.sender) {
         withdrawalWallet = payable(msg.sender);
@@ -100,6 +118,13 @@ contract certificate_verification is Ownable {
         withdrawalWallet = payable(_wallet);
     }
 
+    function setModerator(
+        address _moderator,
+        bool _flag
+    ) external onlyOwner validAddress(_moderator) {
+        moderators[_moderator] = _flag;
+    }
+
     function addInstitution(
         string memory _name,
         string memory _location,
@@ -115,8 +140,8 @@ contract certificate_verification is Ownable {
         newInstitution.name = _name;
         newInstitution.location = _location;
         newInstitution.country = _country;
-        newInstitution.withdrawalWallet = _withdrawalWallet;
-        newInstitution.APPLICATION_FEE = _applicationFee;
+        newInstitution.withdrawalWallet = payable(_withdrawalWallet);
+        newInstitution.applicationFee = _applicationFee;
         newInstitution.totalPrograms = 0;
     }
 
@@ -129,7 +154,7 @@ contract certificate_verification is Ownable {
         validAddress(_wallet)
         validInstitution(_institutionId)
     {
-        institutions[_institutionId].withdrawalWallet = _wallet;
+        institutions[_institutionId].withdrawalWallet = payable(_wallet);
     }
 
     function setPrimaryVerifier(
@@ -167,11 +192,66 @@ contract certificate_verification is Ownable {
         unchecked {
             institutions[_institutionId].totalPrograms++;
         }
-        institutions[_institutionId].programs[institutions[_institutionId].totalPrograms] = Program(
+        institutions[_institutionId].programs[
+            institutions[_institutionId].totalPrograms
+        ] = Program(
             institutions[_institutionId].totalPrograms,
             _programType,
             _title,
             _major
+        );
+    }
+
+    function applyForVerification(
+        string memory _serialNumber,
+        uint256 _studentName,
+        string memory _studentId,
+        string memory _graduationDate,
+        string memory _dateOfBirth,
+        uint256 _programId,
+        uint256 _institutionId,
+        string memory _ipfsUrl
+    ) external payable validInstitution(_institutionId) {
+        if (
+            _programId < 1 ||
+            _programId > institutions[_institutionId].totalPrograms
+        ) {
+            revert InvalidProgram();
+        }
+        require(
+            msg.value == institutions[_institutionId].applicationFee,
+            "insufficient or excess ETH provided."
+        );
+
+        unchecked {
+            totalCertificate++;
+        }
+        certificates[totalCertificate] = Certificate(
+            totalCertificate,
+            _serialNumber,
+            _studentName,
+            _studentId,
+            _graduationDate,
+            _dateOfBirth,
+            _programId,
+            _institutionId,
+            _ipfsUrl,
+            msg.sender,
+            false,
+            false
+        );
+
+        emit CertificateCreated(
+            totalCertificate,
+            _serialNumber,
+            _studentName,
+            _studentId,
+            _graduationDate,
+            _dateOfBirth,
+            _programId,
+            _institutionId,
+            _ipfsUrl,
+            msg.sender
         );
     }
 }
