@@ -9,7 +9,10 @@ error InvalidModerator();
 error InvalidProgram();
 error InvalidInstituition();
 error InvalidVerifier();
+error InvalidPrimaryVerifier();
+error AlreadyPrimaryVerified();
 error AlreadyVerified();
+error InvalidCertificateId();
 
 contract certificate_verification is Ownable {
     /// @dev Revert transaction for zero address or the address is this current smart contract
@@ -40,6 +43,20 @@ contract certificate_verification is Ownable {
     modifier validModerator(address _address) {
         if (!moderators[_address]) {
             revert InvalidModerator();
+        }
+        _;
+    }
+
+    modifier validVerifier(uint256 _institutionId, address _address) {
+        if (!institutions[_institutionId].secondaryVerifiers[_address]) {
+            revert InvalidVerifier();
+        }
+        _;
+    }
+
+    modifier validPrimaryVerifier(uint256 _institutionId, address _address) {
+        if (!institutions[_institutionId].primaryVerifiers[_address]) {
+            revert InvalidPrimaryVerifier();
         }
         _;
     }
@@ -253,5 +270,41 @@ contract certificate_verification is Ownable {
             _ipfsUrl,
             msg.sender
         );
+    }
+
+    function primaryVerify(
+        uint256 _certificateId
+    )
+        external
+        validPrimaryVerifier(
+            certificates[_certificateId].institutionId,
+            msg.sender
+        )
+    {
+        if (_certificateId < 1 || _certificateId > totalCertificate) {
+            revert InvalidCertificateId();
+        }
+        if (certificates[_certificateId].primaryVerified == true) {
+            revert AlreadyPrimaryVerified();
+        }
+        certificates[_certificateId].primaryVerified = true;
+    }
+
+    function verify(
+        uint256 _certificateId
+    )
+        external
+        validVerifier(
+            certificates[_certificateId].institutionId,
+            msg.sender
+        )
+    {
+        if (_certificateId < 1 || _certificateId > totalCertificate) {
+            revert InvalidCertificateId();
+        }
+        if (certificates[_certificateId].verified == true) {
+            revert AlreadyVerified();
+        }
+        certificates[_certificateId].verified = true;
     }
 }

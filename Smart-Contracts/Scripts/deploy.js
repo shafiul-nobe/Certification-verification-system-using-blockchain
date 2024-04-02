@@ -18,8 +18,8 @@ async function main() {
 
   // We get the contract to deploy
 
-  const Contract = await hre.ethers.getContractFactory("Lock");
-  const contract = await Contract.deploy(1743617300);
+  const Contract = await hre.ethers.getContractFactory("certificate_verification");
+  const contract = await Contract.deploy();
   await contract.waitForDeployment();
 
   console.log("Smart Contract deployed to:", contract.target);
