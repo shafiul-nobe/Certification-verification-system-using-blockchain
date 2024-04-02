@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require('hardhat-abi-exporter');
 require('dotenv').config();
 require('solidity-coverage');
+require("@nomicfoundation/hardhat-verify");
 
 const NETWORK = process.env.NETWORK || 'hardhat';
 const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
@@ -34,7 +35,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      sepolia: 'T_v4geCnI2Jta8ginkyrQC7kl9oVlLN2',
+      sepolia: 'B5BJDZ526T7SINAJRN3TJ7FPU5KAJQACDS',
     }
   }
 };
