@@ -18,7 +18,7 @@ async function main() {
 
   // We get the contract to deploy
 
-  const Contract = await hre.ethers.getContractFactory("certificate_verification");
+  const Contract = await hre.ethers.getContractFactory("Certificate_Verification");
   const contract = await Contract.deploy();
   await contract.waitForDeployment();
 

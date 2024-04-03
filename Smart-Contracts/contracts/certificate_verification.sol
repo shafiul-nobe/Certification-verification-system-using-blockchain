@@ -77,6 +77,16 @@ contract Certificate_Verification is Ownable {
         mapping(address => bool) secondaryVerifiers;
     }
 
+    struct InstitutionDto {
+        uint256 id;
+        string name;
+        string location;
+        string country;
+        address payable withdrawalWallet;
+        uint256 totalPrograms;
+        Program[100] programs;
+    }
+
     struct Certificate {
         uint256 id;
         string serialnumber;
@@ -114,7 +124,7 @@ contract Certificate_Verification is Ownable {
         address applicant
     );
 
-    event Verified(uint256 certificateId, string verificationType);
+    event Verified(Certificate certificate, string verificationType);
 
     constructor() Ownable(msg.sender) {
         withdrawalWallet = payable(msg.sender);
@@ -218,8 +228,8 @@ contract Certificate_Verification is Ownable {
         string memory _studentId,
         string memory _graduationDate,
         string memory _dateOfBirth,
-        uint256 _programId,
         uint256 _institutionId,
+        uint256 _programId,
         string memory _ipfsUrl
     ) external payable validInstitution(_institutionId) {
         if (
@@ -281,7 +291,7 @@ contract Certificate_Verification is Ownable {
             revert AlreadyPrimaryVerified();
         }
         certificates[_certificateId].primaryVerified = true;
-        emit Verified(_certificateId, "primary");
+        emit Verified(certificates[_certificateId], "primary");
     }
 
     function verify(
@@ -304,6 +314,73 @@ contract Certificate_Verification is Ownable {
             .withdrawalWallet
             .transfer((APPLICATION_FEE * 4) / 5);
         withdrawalWallet.transfer((APPLICATION_FEE / 5));
-        emit Verified(_certificateId, "secondary");
+        emit Verified(certificates[_certificateId], "secondary");
+    }
+
+    function getCertificatesByApplicant(
+        address _address
+    ) public view returns (Certificate[] memory data) {
+        Certificate[] memory tmp = new Certificate[](totalCertificate);
+
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalCertificate; i++) {
+            Certificate memory certificate = certificates[i];
+            if (certificate.applicant == _address) {
+                tmp[count] = certificate;
+                count += 1;
+            }
+        }
+        data = new Certificate[](count);
+        for (uint256 i = 0; i < count; i++) {
+            data[i] = tmp[i];
+        }
+        return data;
+    }
+
+    function getCertificatesByInstitutionId(
+        uint256 _institutionId
+    ) public view returns (Certificate[] memory data) {
+        Certificate[] memory tmp = new Certificate[](totalCertificate);
+
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalCertificate; i++) {
+            Certificate memory certificate = certificates[i];
+            if (certificate.institutionId == _institutionId) {
+                tmp[count] = certificate;
+                count += 1;
+            }
+        }
+        data = new Certificate[](count);
+        for (uint256 i = 0; i < count; i++) {
+            data[i] = tmp[i];
+        }
+        return data;
+    }
+
+    function getinstitutions()
+        public
+        view
+        returns (InstitutionDto[] memory datas)
+    {
+        datas = new InstitutionDto[](totalInstitution);
+
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            Institution storage institution = institutions[i];
+            InstitutionDto memory institutionDto;
+
+            institutionDto.id = institution.id;
+            institutionDto.name = institution.name;
+            institutionDto.location = institution.location;
+            institutionDto.country = institution.country;
+            institutionDto.withdrawalWallet = institution.withdrawalWallet;
+            institutionDto.totalPrograms = institution.totalPrograms;
+
+            for (uint256 j = 0; j < institution.totalPrograms; j++) {
+                institutionDto.programs[j] = institution.programs[j + 1];
+            }
+
+            datas[i - 1] = institutionDto;
+        }
+        return datas;
     }
 }
