@@ -10,13 +10,12 @@ error InvalidProgram();
 error InvalidInstituition();
 error InvalidVerifier();
 error InvalidPrimaryVerifier();
-error AlreadyPrimaryVerified();
 error AlreadyVerified();
+error AlreadyPrimaryVerified();
+error AlreadyNotPrimaryVerified();
 error InvalidCertificateId();
 
-contract certificate_verification is Ownable {
-    /// @dev Revert transaction for zero address or the address is this current smart contract
-    /// @param _address wallet address to verify
+contract Certificate_Verification is Ownable {
     modifier validAddress(address _address) {
         if (_address == address(0) || _address == address(this)) {
             revert InvalidAddress();
@@ -24,8 +23,6 @@ contract certificate_verification is Ownable {
         _;
     }
 
-    /// @dev Revert transaction for zero as input value
-    /// @param amount ammount to verify
     modifier notZero(uint256 amount) {
         if (amount == 0) {
             revert ValueCanNotBeZero();
@@ -34,7 +31,7 @@ contract certificate_verification is Ownable {
     }
 
     modifier validInstitution(uint256 id) {
-        if (id <= totalInstitution) {
+        if (id > totalInstitution || id < 1) {
             revert InvalidInstituition();
         }
         _;
@@ -47,16 +44,16 @@ contract certificate_verification is Ownable {
         _;
     }
 
-    modifier validVerifier(uint256 _institutionId, address _address) {
-        if (!institutions[_institutionId].secondaryVerifiers[_address]) {
-            revert InvalidVerifier();
+    modifier validPrimaryVerifier(uint256 _institutionId, address _address) {
+        if (!institutions[_institutionId].primaryVerifiers[_address]) {
+            revert InvalidPrimaryVerifier();
         }
         _;
     }
 
-    modifier validPrimaryVerifier(uint256 _institutionId, address _address) {
-        if (!institutions[_institutionId].primaryVerifiers[_address]) {
-            revert InvalidPrimaryVerifier();
+    modifier validVerifier(uint256 _institutionId, address _address) {
+        if (!institutions[_institutionId].secondaryVerifiers[_address]) {
+            revert InvalidVerifier();
         }
         _;
     }
@@ -74,7 +71,6 @@ contract certificate_verification is Ownable {
         string location;
         string country;
         address payable withdrawalWallet;
-        uint256 applicationFee;
         uint256 totalPrograms;
         mapping(uint256 => Program) programs;
         mapping(address => bool) primaryVerifiers;
@@ -84,7 +80,7 @@ contract certificate_verification is Ownable {
     struct Certificate {
         uint256 id;
         string serialnumber;
-        uint256 studentName;
+        string studentName;
         string studentId;
         string graduationDate;
         string dateOfBirth;
@@ -103,11 +99,12 @@ contract certificate_verification is Ownable {
     mapping(address => bool) public moderators;
     mapping(uint256 => Institution) public institutions;
     mapping(uint256 => Certificate) public certificates;
+    uint256 public constant APPLICATION_FEE = 0.0006 ether;
 
     event CertificateCreated(
         uint256 id,
         string serialnumber,
-        uint256 studentName,
+        string studentName,
         string studentId,
         string graduationDate,
         string dateOfBirth,
@@ -117,18 +114,16 @@ contract certificate_verification is Ownable {
         address applicant
     );
 
+    event Verified(uint256 certificateId, string verificationType);
+
     constructor() Ownable(msg.sender) {
         withdrawalWallet = payable(msg.sender);
     }
-    /// @notice Transfer balance on this contract to withdrawal address
+
     function withdrawETH() external onlyOwner {
         withdrawalWallet.transfer(address(this).balance);
     }
 
-    /// @notice Set wallet address that can withdraw the balance
-    /// @dev Only owner of the contract can execute this function.
-    ///      The address should not be 0x0 or contract address
-    /// @param _wallet Any valid address
     function setWithdrawWallet(
         address _wallet
     ) external onlyOwner validAddress(_wallet) {
@@ -146,8 +141,7 @@ contract certificate_verification is Ownable {
         string memory _name,
         string memory _location,
         string memory _country,
-        address _withdrawalWallet,
-        uint256 _applicationFee
+        address _withdrawalWallet
     ) external validModerator(msg.sender) validAddress(_withdrawalWallet) {
         unchecked {
             totalInstitution++;
@@ -158,7 +152,6 @@ contract certificate_verification is Ownable {
         newInstitution.location = _location;
         newInstitution.country = _country;
         newInstitution.withdrawalWallet = payable(_withdrawalWallet);
-        newInstitution.applicationFee = _applicationFee;
         newInstitution.totalPrograms = 0;
     }
 
@@ -221,7 +214,7 @@ contract certificate_verification is Ownable {
 
     function applyForVerification(
         string memory _serialNumber,
-        uint256 _studentName,
+        string memory _studentName,
         string memory _studentId,
         string memory _graduationDate,
         string memory _dateOfBirth,
@@ -236,7 +229,7 @@ contract certificate_verification is Ownable {
             revert InvalidProgram();
         }
         require(
-            msg.value == institutions[_institutionId].applicationFee,
+            msg.value == APPLICATION_FEE,
             "insufficient or excess ETH provided."
         );
 
@@ -284,27 +277,33 @@ contract certificate_verification is Ownable {
         if (_certificateId < 1 || _certificateId > totalCertificate) {
             revert InvalidCertificateId();
         }
-        if (certificates[_certificateId].primaryVerified == true) {
+        if (certificates[_certificateId].primaryVerified) {
             revert AlreadyPrimaryVerified();
         }
         certificates[_certificateId].primaryVerified = true;
+        emit Verified(_certificateId, "primary");
     }
 
     function verify(
         uint256 _certificateId
     )
         external
-        validVerifier(
-            certificates[_certificateId].institutionId,
-            msg.sender
-        )
+        validVerifier(certificates[_certificateId].institutionId, msg.sender)
     {
         if (_certificateId < 1 || _certificateId > totalCertificate) {
             revert InvalidCertificateId();
         }
-        if (certificates[_certificateId].verified == true) {
+        if (certificates[_certificateId].verified) {
             revert AlreadyVerified();
         }
+        if (!certificates[_certificateId].primaryVerified) {
+            revert AlreadyNotPrimaryVerified();
+        }
         certificates[_certificateId].verified = true;
+        institutions[certificates[_certificateId].institutionId]
+            .withdrawalWallet
+            .transfer((APPLICATION_FEE * 4) / 5);
+        withdrawalWallet.transfer((APPLICATION_FEE / 5));
+        emit Verified(_certificateId, "secondary");
     }
 }
