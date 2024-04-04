@@ -69,21 +69,17 @@ function ApplyForVerification() {
         ...inputs,
         _ipfsUrl: imageUrl,
       };
-      console.log(data);
 
-      console.log(ethers.providers);
       if (!window.ethereum) return alert("Please Install MetaMask!");
       const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      console.log(signer);
+      // console.log(signer);
       const erc20 = new ethers.Contract(
         ethereumConfig.address,
         erc20ABI,
         signer
       );
-
-      const s = await erc20.certificates(10);
-      console.log(s);
 
       const res = await erc20.applyForVerification(
         data._serialNumber,
@@ -93,7 +89,10 @@ function ApplyForVerification() {
         data._dateOfBirth,
         data._programId,
         data._institutionId,
-        data._ipfsUrl
+        data._ipfsUrl,
+        {
+          gasLimit: "3000000",
+        }
       );
       console.log(res);
     } catch (error) {
