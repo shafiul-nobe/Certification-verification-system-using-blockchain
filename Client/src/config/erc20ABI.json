@@ -1,0 +1,360 @@
+[
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  { "inputs": [], "name": "AlreadyPrimaryVerified", "type": "error" },
+  { "inputs": [], "name": "AlreadyVerified", "type": "error" },
+  { "inputs": [], "name": "InvalidAddress", "type": "error" },
+  { "inputs": [], "name": "InvalidCertificateId", "type": "error" },
+  { "inputs": [], "name": "InvalidInstituition", "type": "error" },
+  { "inputs": [], "name": "InvalidModerator", "type": "error" },
+  { "inputs": [], "name": "InvalidPrimaryVerifier", "type": "error" },
+  { "inputs": [], "name": "InvalidProgram", "type": "error" },
+  { "inputs": [], "name": "InvalidVerifier", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "serialnumber",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "studentName",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "studentId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "graduationDate",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "dateOfBirth",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "programId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "institutionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "ipfsUrl",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "applicant",
+        "type": "address"
+      }
+    ],
+    "name": "CertificateCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_location", "type": "string" },
+      { "internalType": "string", "name": "_country", "type": "string" },
+      {
+        "internalType": "address",
+        "name": "_withdrawalWallet",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_applicationFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "addInstitution",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_institutionId",
+        "type": "uint256"
+      },
+      { "internalType": "string", "name": "_programType", "type": "string" },
+      { "internalType": "string", "name": "_title", "type": "string" },
+      { "internalType": "string", "name": "_major", "type": "string" }
+    ],
+    "name": "addPrograms",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_serialNumber", "type": "string" },
+      { "internalType": "uint256", "name": "_studentName", "type": "uint256" },
+      { "internalType": "string", "name": "_studentId", "type": "string" },
+      { "internalType": "string", "name": "_graduationDate", "type": "string" },
+      { "internalType": "string", "name": "_dateOfBirth", "type": "string" },
+      { "internalType": "uint256", "name": "_programId", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_institutionId",
+        "type": "uint256"
+      },
+      { "internalType": "string", "name": "_ipfsUrl", "type": "string" }
+    ],
+    "name": "applyForVerification",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "certificates",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "string", "name": "serialnumber", "type": "string" },
+      { "internalType": "uint256", "name": "studentName", "type": "uint256" },
+      { "internalType": "string", "name": "studentId", "type": "string" },
+      { "internalType": "string", "name": "graduationDate", "type": "string" },
+      { "internalType": "string", "name": "dateOfBirth", "type": "string" },
+      { "internalType": "uint256", "name": "programId", "type": "uint256" },
+      { "internalType": "uint256", "name": "institutionId", "type": "uint256" },
+      { "internalType": "string", "name": "ipfsUrl", "type": "string" },
+      { "internalType": "address", "name": "applicant", "type": "address" },
+      { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
+      { "internalType": "bool", "name": "verified", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "institutions",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "location", "type": "string" },
+      { "internalType": "string", "name": "country", "type": "string" },
+      {
+        "internalType": "address payable",
+        "name": "withdrawalWallet",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "applicationFee",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "totalPrograms", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "moderators",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_certificateId", "type": "uint256" }
+    ],
+    "name": "primaryVerify",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_institutionId",
+        "type": "uint256"
+      },
+      { "internalType": "address", "name": "_wallet", "type": "address" }
+    ],
+    "name": "setInstitutiontWithdrawalWallet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_moderator", "type": "address" },
+      { "internalType": "bool", "name": "_flag", "type": "bool" }
+    ],
+    "name": "setModerator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_institutionId",
+        "type": "uint256"
+      },
+      { "internalType": "address", "name": "_wallet", "type": "address" },
+      { "internalType": "bool", "name": "_flag", "type": "bool" }
+    ],
+    "name": "setPrimaryVerifier",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_institutionId",
+        "type": "uint256"
+      },
+      { "internalType": "address", "name": "_wallet", "type": "address" },
+      { "internalType": "bool", "name": "_flag", "type": "bool" }
+    ],
+    "name": "setSecondaryVerifier",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_wallet", "type": "address" }
+    ],
+    "name": "setWithdrawWallet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalCertificate",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalInstitution",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalVerified",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_certificateId", "type": "uint256" }
+    ],
+    "name": "verify",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdrawETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdrawalWallet",
+    "outputs": [
+      { "internalType": "address payable", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
