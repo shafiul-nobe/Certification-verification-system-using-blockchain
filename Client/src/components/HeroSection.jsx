@@ -5,7 +5,7 @@ function HeroSection() {
     <div
       className="hero min-h-[80vh]"
       style={{
-        backgroundImage: "url(/images/Vector_2646.jpg)",
+        backgroundImage: "url(/images/background.jpg)",
       }}
     >
       <div className="w-full flex justify-end items-end text-right">

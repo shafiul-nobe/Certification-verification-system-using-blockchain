@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import erc20ABI from "../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../config/ethereum";
+import Success from "../components/Success/Success";
+import { useNavigate } from "react-router-dom";
 
 function ApplyForVerification() {
   const [inputs, setInputs] = useState({
@@ -59,6 +61,10 @@ function ApplyForVerification() {
     }));
   };
 
+  const [formStatus, setFormStatus] = useState("init"); // init | processing | success
+  const modalRef = useRef(null);
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (imageUrl.length === 0) {
@@ -70,48 +76,126 @@ function ApplyForVerification() {
         _ipfsUrl: imageUrl,
       };
 
+      let valid = true;
+      for (const key in data) {
+        if (data[key] === "") valid = false;
+      }
+
+      if (!valid) return alert("Please fill all the fields");
+
       if (!window.ethereum) return alert("Please Install MetaMask!");
+
+      // Open the modal
+      modalRef.current.showModal();
+      setFormStatus("processing");
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      // console.log(signer);
-      const erc20 = new ethers.Contract(
+      const contract = new ethers.Contract(
         ethereumConfig.address,
         erc20ABI,
         signer
       );
 
-      const res = await erc20.applyForVerification(
+      const res = await contract.applyForVerification(
         data._serialNumber,
-        10,
+        data._studentName,
         data._studentId,
         data._graduationDate,
         data._dateOfBirth,
-        data._programId,
-        data._institutionId,
+        1,
+        1,
         data._ipfsUrl,
         {
-          gasLimit: "3000000",
+          gasLimit: ethers.utils.hexlify(7500000),
+          value: ethers.utils.parseEther("0.0006"),
         }
       );
-      console.log(res);
+
+      const receipt = await res.wait();
+
+      setFormStatus("success");
+
+      setTimeout(() => {
+        navigate("/student");
+      }, 2000);
     } catch (error) {
       console.error(error);
     }
   };
 
+  const [institutes, setInstitutes] = useState([]);
+  const [programs, setPrograms] = useState([]);
+
+  const getInstitutes = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(
+      ethereumConfig.address,
+      erc20ABI,
+      signer
+    );
+
+    const res = await contract.getinstitutions();
+
+    const sanitized = res.map((institute, index) => {
+      const { name, location, country, programs, totalPrograms } = institute;
+      return { name, location, country, programs, totalPrograms };
+    });
+    setInstitutes(sanitized);
+  };
+
+  useEffect(() => {
+    if (!window.ethereum) return alert("Please Install MetaMask!");
+    getInstitutes();
+  }, []);
+
+  useEffect(() => {
+    if (inputs._institutionId) {
+      const programLength = parseInt(
+        institutes[inputs._institutionId].totalPrograms._hex,
+        16
+      );
+
+      setInputs((prev) => {
+        return {
+          ...prev,
+          _programId: "",
+        };
+      });
+
+      setPrograms(
+        institutes[inputs._institutionId].programs.slice(0, programLength)
+      );
+    }
+  }, [inputs._institutionId]);
+
   return (
     <div className="px-10 pt-6 pb-10">
+      <dialog id="processing_modal" ref={modalRef} className="modal">
+        <div className="modal-box">
+          {formStatus === "processing" ? (
+            <div className="flex flex-col justify-center items-center gap-3 py-4">
+              <span className="loading loading-ring loading-lg"></span>
+              <h1 className="text-lg">Processing...</h1>
+            </div>
+          ) : null}
+
+          {formStatus === "success" ? <Success /> : null}
+        </div>
+      </dialog>
       <div>
         <div className="w-full flex justify-center items-center mb-6">
           <h1 className="text-2xl font-semibold">Apply For Verification</h1>
         </div>
         <form className="flex justify-center items-center">
-          <div className="grid grid-cols-2 gap-4 w-1/2">
-            <div className="col-span-2">
-              <div className="bg-gray-700 h-40 rounded mb-2 border-2 border-dashed border-gray-400 flex justify-center items-center">
+          <div className="grid grid-cols-1 gap-4 w-[500px]">
+            <div className="col-span-1">
+              <div className="bg-gray-700 h-52 rounded mb-2 border-2 border-dashed border-gray-400 flex justify-center items-center">
                 {imageUrl ? (
-                  <img src={imageUrl} className="h-[140px] rounded shadow" />
+                  <img src={imageUrl} className="h-[180px] rounded shadow" />
                 ) : (
                   "Select an image"
                 )}
@@ -139,6 +223,7 @@ function ApplyForVerification() {
                 name="_serialNumber"
                 value={inputs._serialNumber}
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="flex flex-col justify-start items-start gap-2">
@@ -150,6 +235,7 @@ function ApplyForVerification() {
                 name="_studentName"
                 value={inputs._studentName}
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="flex flex-col justify-start items-start gap-2">
@@ -161,45 +247,32 @@ function ApplyForVerification() {
                 name="_studentId"
                 value={inputs._studentId}
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="flex flex-col justify-start items-start gap-2">
               <label>Graduation Date:</label>
               <input
-                type="text"
-                placeholder="mm/yyyy"
+                type="date"
                 className="input input-bordered input-primary w-full"
                 name="_graduationDate"
                 value={inputs._graduationDate}
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="flex flex-col justify-start items-start gap-2">
               <label>Date of Birth:</label>
               <input
-                type="text"
-                placeholder="yyyy-mm-dd"
+                type="date"
                 className="input input-bordered input-primary w-full"
                 name="_dateOfBirth"
                 value={inputs._dateOfBirth}
                 onChange={handleInputChange}
+                required
               />
             </div>
-            <div className="flex flex-col justify-start items-start gap-2">
-              <label>Select Your Program:</label>
-              <select
-                className="select select-primary w-full"
-                name="_programId"
-                value={inputs._programId}
-                onChange={handleInputChange}
-              >
-                <option value={undefined}>Select Your Program</option>
-                <option value={1}>A</option>
-                <option value={2}>B</option>
-                <option value={3}>C</option>
-                <option value={4}>D</option>
-              </select>
-            </div>
+
             <div className="flex flex-col justify-start items-start gap-2">
               <label>Select Your Institute:</label>
               <select
@@ -207,15 +280,42 @@ function ApplyForVerification() {
                 name="_institutionId"
                 value={inputs._institutionId}
                 onChange={handleInputChange}
+                required
               >
-                <option value={undefined}>Select Your Institute</option>
-                <option value={1}>A</option>
-                <option value={2}>B</option>
-                <option value={3}>C</option>
-                <option value={4}>D</option>
+                <option value={""} disabled>
+                  Select Your Institute
+                </option>
+                {institutes.map((inst, index) => {
+                  return (
+                    <option key={index} value={index}>
+                      {`${inst.name}, ${inst.location}, ${inst.country}`}
+                    </option>
+                  );
+                })}
               </select>
             </div>
-            <div className="col-span-2">
+
+            <div className="flex flex-col justify-start items-start gap-2">
+              <label>Select Your Program:</label>
+              <select
+                className="select select-primary w-full"
+                name="_programId"
+                value={inputs._programId}
+                onChange={handleInputChange}
+                disabled={inputs._institutionId.length === 0}
+                required
+              >
+                <option value={""}>Select Your Program</option>
+                {programs.map((prog, index) => {
+                  return (
+                    <option key={index} value={index}>
+                      {`${prog.programType} in ${prog.title}`}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            <div className="col-span-1">
               <button onClick={handleSubmit} className="btn btn-primary w-full">
                 Submit
               </button>

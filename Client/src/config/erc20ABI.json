@@ -1,5 +1,6 @@
 [
   { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  { "inputs": [], "name": "AlreadyNotPrimaryVerified", "type": "error" },
   { "inputs": [], "name": "AlreadyPrimaryVerified", "type": "error" },
   { "inputs": [], "name": "AlreadyVerified", "type": "error" },
   { "inputs": [], "name": "InvalidAddress", "type": "error" },
@@ -40,9 +41,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "studentName",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": false,
@@ -110,6 +111,58 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          {
+            "internalType": "string",
+            "name": "serialnumber",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "studentName", "type": "string" },
+          { "internalType": "string", "name": "studentId", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "graduationDate",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "dateOfBirth", "type": "string" },
+          { "internalType": "uint256", "name": "programId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "institutionId",
+            "type": "uint256"
+          },
+          { "internalType": "string", "name": "ipfsUrl", "type": "string" },
+          { "internalType": "address", "name": "applicant", "type": "address" },
+          { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
+          { "internalType": "bool", "name": "verified", "type": "bool" }
+        ],
+        "indexed": false,
+        "internalType": "struct Certificate_Verification.Certificate",
+        "name": "certificate",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "verificationType",
+        "type": "string"
+      }
+    ],
+    "name": "Verified",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "APPLICATION_FEE",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "string", "name": "_name", "type": "string" },
       { "internalType": "string", "name": "_location", "type": "string" },
@@ -118,11 +171,6 @@
         "internalType": "address",
         "name": "_withdrawalWallet",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_applicationFee",
-        "type": "uint256"
       }
     ],
     "name": "addInstitution",
@@ -149,16 +197,16 @@
   {
     "inputs": [
       { "internalType": "string", "name": "_serialNumber", "type": "string" },
-      { "internalType": "uint256", "name": "_studentName", "type": "uint256" },
+      { "internalType": "string", "name": "_studentName", "type": "string" },
       { "internalType": "string", "name": "_studentId", "type": "string" },
       { "internalType": "string", "name": "_graduationDate", "type": "string" },
       { "internalType": "string", "name": "_dateOfBirth", "type": "string" },
-      { "internalType": "uint256", "name": "_programId", "type": "uint256" },
       {
         "internalType": "uint256",
         "name": "_institutionId",
         "type": "uint256"
       },
+      { "internalType": "uint256", "name": "_programId", "type": "uint256" },
       { "internalType": "string", "name": "_ipfsUrl", "type": "string" }
     ],
     "name": "applyForVerification",
@@ -172,7 +220,7 @@
     "outputs": [
       { "internalType": "uint256", "name": "id", "type": "uint256" },
       { "internalType": "string", "name": "serialnumber", "type": "string" },
-      { "internalType": "uint256", "name": "studentName", "type": "uint256" },
+      { "internalType": "string", "name": "studentName", "type": "string" },
       { "internalType": "string", "name": "studentId", "type": "string" },
       { "internalType": "string", "name": "graduationDate", "type": "string" },
       { "internalType": "string", "name": "dateOfBirth", "type": "string" },
@@ -182,6 +230,132 @@
       { "internalType": "address", "name": "applicant", "type": "address" },
       { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
       { "internalType": "bool", "name": "verified", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getCertificatesByApplicant",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          {
+            "internalType": "string",
+            "name": "serialnumber",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "studentName", "type": "string" },
+          { "internalType": "string", "name": "studentId", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "graduationDate",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "dateOfBirth", "type": "string" },
+          { "internalType": "uint256", "name": "programId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "institutionId",
+            "type": "uint256"
+          },
+          { "internalType": "string", "name": "ipfsUrl", "type": "string" },
+          { "internalType": "address", "name": "applicant", "type": "address" },
+          { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
+          { "internalType": "bool", "name": "verified", "type": "bool" }
+        ],
+        "internalType": "struct Certificate_Verification.Certificate[]",
+        "name": "data",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_institutionId", "type": "uint256" }
+    ],
+    "name": "getCertificatesByInstitutionId",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          {
+            "internalType": "string",
+            "name": "serialnumber",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "studentName", "type": "string" },
+          { "internalType": "string", "name": "studentId", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "graduationDate",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "dateOfBirth", "type": "string" },
+          { "internalType": "uint256", "name": "programId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "institutionId",
+            "type": "uint256"
+          },
+          { "internalType": "string", "name": "ipfsUrl", "type": "string" },
+          { "internalType": "address", "name": "applicant", "type": "address" },
+          { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
+          { "internalType": "bool", "name": "verified", "type": "bool" }
+        ],
+        "internalType": "struct Certificate_Verification.Certificate[]",
+        "name": "data",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getinstitutions",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "location", "type": "string" },
+          { "internalType": "string", "name": "country", "type": "string" },
+          {
+            "internalType": "address payable",
+            "name": "withdrawalWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalPrograms",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              { "internalType": "uint256", "name": "id", "type": "uint256" },
+              {
+                "internalType": "string",
+                "name": "programType",
+                "type": "string"
+              },
+              { "internalType": "string", "name": "title", "type": "string" },
+              { "internalType": "string", "name": "major", "type": "string" }
+            ],
+            "internalType": "struct Certificate_Verification.Program[100]",
+            "name": "programs",
+            "type": "tuple[100]"
+          }
+        ],
+        "internalType": "struct Certificate_Verification.InstitutionDto[]",
+        "name": "datas",
+        "type": "tuple[]"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -198,11 +372,6 @@
         "internalType": "address payable",
         "name": "withdrawalWallet",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "applicationFee",
-        "type": "uint256"
       },
       { "internalType": "uint256", "name": "totalPrograms", "type": "uint256" }
     ],
