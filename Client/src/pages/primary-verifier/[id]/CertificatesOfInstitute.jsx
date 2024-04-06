@@ -3,6 +3,7 @@ import erc20ABI from "../../../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../../../config/ethereum";
 import { Link, useParams } from "react-router-dom";
+import Success from "../../../components/Success/Success";
 
 const CertificatesOfInstitute = () => {
   const [certificates, setCertificates] = useState([]);
@@ -10,7 +11,8 @@ const CertificatesOfInstitute = () => {
   const [detailsIdx, setDetailsIdx] = useState(-1);
   const [certificateId, setCertificateId] = useState(-1);
   const [verificationProcessStatus, setVerificationProcessStatus] =
-    useState("init");
+    useState("init"); // init | processing | succeess | error
+  const [trxHash, setTrxHash] = useState(null);
 
   const params = useParams();
 
@@ -59,14 +61,12 @@ const CertificatesOfInstitute = () => {
       });
       const [res] = await Promise.all([_res]);
       const trx = await res.wait();
-      console.log(trx);
+      setTrxHash(trx.transactionHash);
       setVerificationProcessStatus("success");
-      // window.document.getElementById("confirm-verify").closeModal();
-      window.location.reload();
     } catch (error) {
       console.log(error);
-    } finally {
-      setVerificationProcessStatus("init");
+      setVerificationProcessStatus("error");
+      window.document.getElementById("confirmModal").click();
     }
   };
 
@@ -86,28 +86,66 @@ const CertificatesOfInstitute = () => {
       </div>
       <dialog id="confirm-verify" className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Are you sure?</h3>
-          <p className="pt-4">
-            Do you acknoledge this certificate for primary verification? Your
-            action cannot be reverted!
-          </p>
-          <div className="modal-action">
-            <button className="btn btn-success" onClick={verifyCertificate}>
-              {verificationProcessStatus === "loading" ? (
-                <span className="loading loading-ring loading-md"></span>
-              ) : null}
-              Confirm
-            </button>
-            <form method="dialog">
-              <button className="btn btn-outline btn-error">Cancel</button>
-            </form>
-          </div>
+          {verificationProcessStatus === "success" ? (
+            <div>
+              <Success />
+              <div className="text-center">
+                The certificate has been verified primarily.
+              </div>
+              <div className="break-all mt-3">
+                Transaction Hash:{" "}
+                <span className="bg-gray-200/20 px-2 rounded-md text-gray-200">
+                  {trxHash}
+                </span>
+              </div>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${trxHash}`}
+                target="_blank"
+                className="btn btn-primary w-full mt-4"
+              >
+                View in Blockchain
+              </a>
+              <Link
+                to="/primary-verifier"
+                className="btn btn-outline btn-error w-full mt-3"
+              >
+                Close
+              </Link>
+            </div>
+          ) : (
+            <>
+              <h3 className="font-bold text-lg">Are you sure?</h3>
+              <p className="pt-4">
+                Do you acknoledge this certificate for primary verification?
+                Your action cannot be reverted!
+              </p>
+              <div className="modal-action">
+                <button className="btn btn-success" onClick={verifyCertificate}>
+                  {verificationProcessStatus === "loading" ? (
+                    <span className="loading loading-ring loading-md"></span>
+                  ) : null}
+                  Confirm
+                </button>
+                <form method="dialog">
+                  <button
+                    id="confirmModal"
+                    className="btn btn-outline btn-error"
+                  >
+                    Cancel
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
         </div>
       </dialog>
       <dialog id="certificate-desc" className="modal">
         <div className="modal-box">
           <div className="w-full">
-            <img src={certificates[detailsIdx]?.ipfsUrl} className="w-full" />
+            <img
+              src={certificates[detailsIdx]?.ipfsUrl}
+              className="w-full min-h-[16rem] bg-gray-300"
+            />
           </div>
           <div className="w-full flex justify-center items-center pt-3 pb-2 text-lg font-semibold">
             Details
@@ -199,7 +237,7 @@ const CertificatesOfInstitute = () => {
                       setCertificateId(cert.id);
                       document.getElementById("certificate-desc").showModal();
                     }}
-                    className="cursor-pointer"
+                    className="cursor-pointer hover:bg-indigo-500/40"
                   >
                     <th>{idx}</th>
                     <td>{cert.studentId}</td>

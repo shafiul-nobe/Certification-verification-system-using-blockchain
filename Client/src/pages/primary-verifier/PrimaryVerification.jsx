@@ -124,7 +124,7 @@ const PrimaryVerification = () => {
             ) : (
               certificates.map((cert, idx) => {
                 return (
-                  <tr key={idx}>
+                  <tr key={idx} className="hover:bg-indigo-400/30">
                     <th>{idx + 1}</th>
                     <td>{cert.name}</td>
                     <td>{cert.location}</td>

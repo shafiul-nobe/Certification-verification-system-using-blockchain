@@ -50,8 +50,11 @@ const Student = () => {
       </div>
       <dialog id="certificate-desc" className="modal">
         <div className="modal-box">
-          <div className="w-full">
-            <img src={certificates[detailsIdx]?.ipfsUrl} className="w-full" />
+          <div className={`w-full`}>
+            <img
+              src={certificates[detailsIdx]?.ipfsUrl}
+              className="w-full bg-gray-500 rounded min-h-[12rem]"
+            />
           </div>
           <div className="w-full flex justify-center items-center pt-3 pb-2 text-lg font-semibold">
             Details
@@ -130,7 +133,7 @@ const Student = () => {
                       setDetailsIdx(idx);
                       document.getElementById("certificate-desc").showModal();
                     }}
-                    className="cursor-pointer"
+                    className="cursor-pointer hover:bg-gray-500/30"
                   >
                     <th>{idx}</th>
                     <td>{cert.studentId}</td>

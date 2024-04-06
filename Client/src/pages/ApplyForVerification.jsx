@@ -60,6 +60,7 @@ function ApplyForVerification() {
       ...s,
       [e.target.name]: e.target.value,
     }));
+    console.log({ [e.target.name]: e.target.value });
   };
 
   const [formStatus, setFormStatus] = useState("init"); // init | processing | success | error
@@ -140,8 +141,9 @@ function ApplyForVerification() {
     const res = await contract.getinstitutions();
 
     const sanitized = res.map((institute, index) => {
-      const { name, location, country, programs, totalPrograms } = institute;
-      return { name, location, country, programs, totalPrograms };
+      const { id, name, location, country, programs, totalPrograms } =
+        institute;
+      return { id, name, location, country, programs, totalPrograms };
     });
     setInstitutes(sanitized);
   };
@@ -153,8 +155,14 @@ function ApplyForVerification() {
 
   useEffect(() => {
     if (inputs._institutionId) {
+      const selectedInstitue = institutes.filter((inst) => {
+        return parseInt(inst.id, 16) == inputs._institutionId;
+      });
+
+      console.log(selectedInstitue[0]);
+
       const programLength = parseInt(
-        institutes[inputs._institutionId].totalPrograms._hex,
+        selectedInstitue[0].totalPrograms._hex,
         16
       );
 
@@ -165,9 +173,7 @@ function ApplyForVerification() {
         };
       });
 
-      setPrograms(
-        institutes[inputs._institutionId].programs.slice(0, programLength)
-      );
+      setPrograms(selectedInstitue[0].programs.slice(0, programLength));
     }
   }, [inputs._institutionId]);
 
@@ -336,7 +342,7 @@ function ApplyForVerification() {
                 </option>
                 {institutes.map((inst, index) => {
                   return (
-                    <option key={index} value={index}>
+                    <option key={index} value={parseInt(inst.id, 16)}>
                       {`${inst.name}, ${inst.location}, ${inst.country}`}
                     </option>
                   );

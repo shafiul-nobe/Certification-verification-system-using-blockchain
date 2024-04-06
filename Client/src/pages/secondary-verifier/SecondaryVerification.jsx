@@ -124,7 +124,7 @@ const SecondaryVerification = () => {
             ) : (
               certificates.map((cert, idx) => {
                 return (
-                  <tr key={idx}>
+                  <tr key={idx} className="hover:bg-teal-500/30">
                     <th>{idx + 1}</th>
                     <td>{cert.name}</td>
                     <td>{cert.location}</td>

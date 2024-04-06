@@ -3,6 +3,7 @@ import erc20ABI from "../../../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../../../config/ethereum";
 import { Link, useParams } from "react-router-dom";
+import Success from "../../../components/Success/Success";
 
 const CertificatesOfInstitute = () => {
   const [certificates, setCertificates] = useState([]);
@@ -11,6 +12,7 @@ const CertificatesOfInstitute = () => {
   const [certificateId, setCertificateId] = useState(-1);
   const [verificationProcessStatus, setVerificationProcessStatus] =
     useState("init");
+  const [trxHash, setTrxHash] = useState(null);
 
   const params = useParams();
 
@@ -59,12 +61,12 @@ const CertificatesOfInstitute = () => {
       });
       const [res] = await Promise.all([_res]);
       const trx = await res.wait();
+      setTrxHash(trx.transactionHash);
       setVerificationProcessStatus("success");
-      window.location.reload();
     } catch (error) {
       console.log(error);
-    } finally {
-      setVerificationProcessStatus("init");
+      setVerificationProcessStatus("error");
+      window.document.getElementById("confirmModal").click();
     }
   };
 
@@ -84,22 +86,57 @@ const CertificatesOfInstitute = () => {
       </div>
       <dialog id="confirm-verify" className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Are you sure?</h3>
-          <p className="pt-4">
-            Do you acknoledge this certificate for primary verification? Your
-            action cannot be reverted!
-          </p>
-          <div className="modal-action">
-            <button className="btn btn-success" onClick={verifyCertificate}>
-              {verificationProcessStatus === "loading" ? (
-                <span className="loading loading-ring loading-md"></span>
-              ) : null}
-              Confirm
-            </button>
-            <form method="dialog">
-              <button className="btn btn-outline btn-error">Cancel</button>
-            </form>
-          </div>
+          {verificationProcessStatus === "success" ? (
+            <div>
+              <Success />
+              <div className="text-center font-semibold text-green-500">
+                The certificate has been verified.
+              </div>
+              <div className="break-all mt-3">
+                Transaction Hash:{" "}
+                <span className="bg-gray-200/20 px-2 rounded-md text-gray-200">
+                  {trxHash}
+                </span>
+              </div>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${trxHash}`}
+                target="_blank"
+                className="btn btn-primary w-full mt-4"
+              >
+                View in Blockchain
+              </a>
+              <Link
+                to="/secondary-verifier"
+                className="btn btn-outline btn-error w-full mt-3"
+              >
+                Close
+              </Link>
+            </div>
+          ) : (
+            <>
+              <h3 className="font-bold text-lg">Are you sure?</h3>
+              <p className="pt-4">
+                Do you acknoledge this certificate for verification? Your action
+                cannot be reverted!
+              </p>
+              <div className="modal-action">
+                <button className="btn btn-success" onClick={verifyCertificate}>
+                  {verificationProcessStatus === "loading" ? (
+                    <span className="loading loading-ring loading-md"></span>
+                  ) : null}
+                  Confirm
+                </button>
+                <form method="dialog">
+                  <button
+                    id="confirmModal"
+                    className="btn btn-outline btn-error"
+                  >
+                    Cancel
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
         </div>
       </dialog>
       <dialog id="certificate-desc" className="modal">
@@ -199,7 +236,7 @@ const CertificatesOfInstitute = () => {
                       setCertificateId(cert.id);
                       document.getElementById("certificate-desc").showModal();
                     }}
-                    className="cursor-pointer"
+                    className="cursor-pointer hover:bg-teal-500/40"
                   >
                     <th>{idx}</th>
                     <td>{cert.studentId}</td>
