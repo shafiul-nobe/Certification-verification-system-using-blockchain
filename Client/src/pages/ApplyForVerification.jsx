@@ -172,7 +172,7 @@ function ApplyForVerification() {
   }, [inputs._institutionId]);
 
   return (
-    <div className="px-10 pt-6 pb-10 bg-gray-800">
+    <div className="px-6 md:px-10 pt-6 pb-10 bg-gray-800">
       <dialog id="processing_modal" ref={modalRef} className="modal">
         <div className="modal-box">
           {formStatus === "processing" ? (
@@ -234,7 +234,7 @@ function ApplyForVerification() {
               Back
             </button>
           </div>
-          <div className="flex justify-center items-center text-2xl font-semibold ">
+          <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
             Apply for Verification
           </div>
           <div className="flex justify-end items-center"></div>

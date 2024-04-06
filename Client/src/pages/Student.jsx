@@ -32,14 +32,14 @@ const Student = () => {
 
   if (!window.ethereum) return <div>Install Metamask in Your Browser</div>;
   return (
-    <div className="p-10 bg-gradient-to-t from-gray-800 to-gray-700 min-h-[80vh]">
+    <div className="p-4 md:p-10 bg-gradient-to-t from-gray-800 to-gray-700 min-h-[80vh]">
       <div className="grid grid-cols-3 bg-gray-800 shadow-lg p-3 rounded-lg mb-6">
         <div className="flex justify-start items-center">
           <button className="p-2" onClick={() => window.history.back()}>
             Back
           </button>
         </div>
-        <div className="flex justify-center items-center text-2xl font-semibold ">
+        <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
           Student Panel
         </div>
         <div className="flex justify-end items-center">
