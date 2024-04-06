@@ -122,7 +122,7 @@ contract Certificate_Verification is Ownable {
         string country; // Country of the institution
         address payable withdrawalWallet; // Wallet address for withdrawal
         uint256 totalPrograms; // Total number of programs offered by the institution
-        Program[100] programs; // Array containing up to 100 programs offered by the institution
+        Program[20] programs; // Array containing up to 100 programs offered by the institution
     }
 
     /// @notice Struct representing an educational certificate
@@ -511,6 +511,7 @@ contract Certificate_Verification is Ownable {
             Institution storage institution = institutions[i];
             if (institution.primaryVerifiers[wallet]) {
                 datas[count] = institution.id;
+                count++;
             }
         }
         return datas;
@@ -534,6 +535,7 @@ contract Certificate_Verification is Ownable {
             Institution storage institution = institutions[i];
             if (institution.secondaryVerifiers[wallet]) {
                 datas[count] = institution.id;
+                count++;
             }
         }
         return datas;
