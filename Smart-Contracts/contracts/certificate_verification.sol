@@ -3,39 +3,68 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-error ValueCanNotBeZero();
+/// @dev Throws an error if the transaction ID value is zero.
+error ValueCannotBeZero();
+
+/// @dev Throws an error if the address is invalid.
 error InvalidAddress();
+
+/// @dev Throws an error if the caller is not a moderator.
 error InvalidModerator();
+
+/// @dev Throws an error if the program ID is invalid.
 error InvalidProgram();
-error InvalidInstituition();
-error InvalidVerifier();
+
+/// @dev Throws an error if the institution is invalid.
+error InvalidInstitution();
+
+/// @dev Throws an error if the caller is not a secondary verifier.
+error InvalidSecondaryVerifier();
+
+/// @dev Throws an error if the caller is not a primary verifier.
 error InvalidPrimaryVerifier();
+
+/// @dev Throws an error if the certificate is already secondarily verified.
 error AlreadyVerified();
+
+/// @dev Throws an error if the certificate is already primarily verified.
 error AlreadyPrimaryVerified();
+
+/// @dev Throws an error if the certificate is not already primarily verified.
 error AlreadyNotPrimaryVerified();
+
+/// @dev Throws an error if the certificate ID is invalid.
 error InvalidCertificateId();
 
 contract Certificate_Verification is Ownable {
+    /// @dev Revert transaction for zero address or the address is this current smart contract
+    /// @param _address wallet address to verify
     modifier validAddress(address _address) {
         if (_address == address(0) || _address == address(this)) {
             revert InvalidAddress();
         }
         _;
     }
+    /// @dev Revert transaction for zero as input value
+    /// @param amount amount to verify
 
     modifier notZero(uint256 amount) {
         if (amount == 0) {
-            revert ValueCanNotBeZero();
+            revert ValueCannotBeZero();
         }
         _;
     }
+    /// @dev Revert transaction if the given institution ID is invalid
+    /// @param id Institution ID to verify
 
     modifier validInstitution(uint256 id) {
         if (id > totalInstitution || id < 1) {
-            revert InvalidInstituition();
+            revert InvalidInstitution();
         }
         _;
     }
+    /// @dev Revert transaction if the caller is not a moderator
+    /// @param _address Address of the caller to verify
 
     modifier validModerator(address _address) {
         if (!moderators[_address]) {
@@ -43,6 +72,9 @@ contract Certificate_Verification is Ownable {
         }
         _;
     }
+    /// @dev Revert transaction if the caller is not a primary verifier of the specified institution
+    /// @param _institutionId Institution ID to verify
+    /// @param _address Address of the caller to verify
 
     modifier validPrimaryVerifier(uint256 _institutionId, address _address) {
         if (!institutions[_institutionId].primaryVerifiers[_address]) {
@@ -50,67 +82,84 @@ contract Certificate_Verification is Ownable {
         }
         _;
     }
+    /// @dev Revert transaction if the caller is not a secondary verifier of the specified institution
+    /// @param _institutionId Institution ID to verify
+    /// @param _address Address of the caller to verify
 
-    modifier validVerifier(uint256 _institutionId, address _address) {
+    modifier validSecondaryVerifier(uint256 _institutionId, address _address) {
         if (!institutions[_institutionId].secondaryVerifiers[_address]) {
-            revert InvalidVerifier();
+            revert InvalidSecondaryVerifier();
         }
         _;
     }
 
+    /// @notice Struct representing a educational program
     struct Program {
-        uint256 id;
-        string programType;
-        string title;
-        string major;
+        uint256 id; // Unique identifier for the program
+        string programType; // Type of the program
+        string title; // Title of the program
+        string major; // Major or subject area of the program
     }
 
+    /// @notice Struct representing an educational institution
     struct Institution {
-        uint256 id;
-        string name;
-        string location;
-        string country;
-        address payable withdrawalWallet;
-        uint256 totalPrograms;
-        mapping(uint256 => Program) programs;
-        mapping(address => bool) primaryVerifiers;
-        mapping(address => bool) secondaryVerifiers;
+        uint256 id; // Unique identifier for the institution
+        string name; // Name of the institution
+        string location; // Location of the institution
+        string country; // Country of the institution
+        address payable withdrawalWallet; // Wallet address for withdrawal
+        uint256 totalPrograms; // Total number of programs offered by the institution
+        mapping(uint256 => Program) programs; // Mapping of program IDs to Program structs
+        mapping(address => bool) primaryVerifiers; // Mapping of addresses to indicate primary verifiers
+        mapping(address => bool) secondaryVerifiers; // Mapping of addresses to indicate secondary verifiers
     }
 
+    /// @notice Struct representing a simplified view of an institution
     struct InstitutionDto {
-        uint256 id;
-        string name;
-        string location;
-        string country;
-        address payable withdrawalWallet;
-        uint256 totalPrograms;
-        Program[100] programs;
+        uint256 id; // Unique identifier for the institution
+        string name; // Name of the institution
+        string location; // Location of the institution
+        string country; // Country of the institution
+        address payable withdrawalWallet; // Wallet address for withdrawal
+        uint256 totalPrograms; // Total number of programs offered by the institution
+        Program[100] programs; // Array containing up to 100 programs offered by the institution
     }
 
+    /// @notice Struct representing an educational certificate
     struct Certificate {
-        uint256 id;
-        string serialnumber;
-        string studentName;
-        string studentId;
-        string graduationDate;
-        string dateOfBirth;
-        uint256 programId;
-        uint256 institutionId;
-        string ipfsUrl;
-        address applicant;
-        bool primaryVerified;
-        bool verified;
+        uint256 id; // Unique identifier for the certificate
+        string serialnumber; // Serial number of the certificate
+        string studentName; // Name of the student
+        string studentId; // ID of the student
+        string graduationDate; // Date of graduation
+        string dateOfBirth; // Date of birth of the student
+        uint256 programId; // ID of the program associated with the certificate
+        uint256 institutionId; // ID of the institution issuing the certificate
+        string ipfsUrl; // IPFS URL for additional information
+        address applicant; // Address of the applicant
+        bool primaryVerified; // Indicates whether the certificate is primary verified
+        bool verified; // Indicates whether the certificate is verified
     }
 
-    uint256 public totalCertificate = 0;
-    uint256 public totalVerified = 0;
-    uint256 public totalInstitution = 0;
-    address payable public withdrawalWallet;
-    mapping(address => bool) public moderators;
-    mapping(uint256 => Institution) public institutions;
-    mapping(uint256 => Certificate) public certificates;
-    uint256 public constant APPLICATION_FEE = 0.0006 ether;
+    uint256 public totalCertificate = 0; // Total number of certificates issued
+    uint256 public totalVerified = 0; // Total number of certificates verified
+    uint256 public totalInstitution = 0; // Total number of institutions registered
+    address payable public withdrawalWallet; // Wallet address for withdrawal
+    mapping(address => bool) public moderators; // Mapping of moderator addresses
+    mapping(uint256 => Institution) public institutions; // Mapping of institution IDs to Institution structs
+    mapping(uint256 => Certificate) public certificates; // Mapping of certificate IDs to Certificate structs
+    uint256 public constant APPLICATION_FEE = 0.0006 ether; // Application fee for certificate issuance
 
+    /// @param id Unique identifier for the certificate
+    /// @param serialnumber Serial number of the certificate
+    /// @param studentName Name of the student
+    /// @param studentId ID of the student
+    /// @param graduationDate Date of graduation
+    /// @param dateOfBirth Date of birth of the student
+    /// @param programId ID of the program associated with the certificate
+    /// @param institutionId ID of the institution issuing the certificate
+    /// @param ipfsUrl IPFS URL of uploaded certificate
+    /// @param applicant Address of the applicant
     event CertificateCreated(
         uint256 id,
         string serialnumber,
@@ -124,22 +173,35 @@ contract Certificate_Verification is Ownable {
         address applicant
     );
 
+    /// @param certificate Certificate struct representing the verified certificate
+    /// @param verificationType Type of verification (primary or secondary)
     event Verified(Certificate certificate, string verificationType);
 
+    /// @notice Constructor function to initialize the contract with the owner's address
+    /// @dev The owner is set as the initial withdrawal wallet address
     constructor() Ownable(msg.sender) {
         withdrawalWallet = payable(msg.sender);
     }
 
+    /// @notice Function to withdraw all Ether balance from the contract
+    /// @dev Only the owner of the contract can call this function
     function withdrawETH() external onlyOwner {
         withdrawalWallet.transfer(address(this).balance);
     }
 
+    /// @notice Function to set the withdrawal wallet address
+    /// @dev Only the owner of the contract can call this function
+    /// @param _wallet The new withdrawal wallet address to be set
     function setWithdrawWallet(
         address _wallet
     ) external onlyOwner validAddress(_wallet) {
         withdrawalWallet = payable(_wallet);
     }
 
+    /// @notice Function to set or remove a moderator
+    /// @dev Only the owner of the contract can call this function
+    /// @param _moderator The address of the moderator to be set or removed
+    /// @param _flag Boolean flag indicating whether to set or remove the moderator (true for set, false for remove)
     function setModerator(
         address _moderator,
         bool _flag
@@ -147,6 +209,12 @@ contract Certificate_Verification is Ownable {
         moderators[_moderator] = _flag;
     }
 
+    /// @notice Function to add a new educational institution
+    /// @dev Only a moderator can call this function
+    /// @param _name Name of the institution
+    /// @param _location Location of the institution
+    /// @param _country Country of the institution
+    /// @param _withdrawalWallet Wallet address for withdrawal of funds
     function addInstitution(
         string memory _name,
         string memory _location,
@@ -165,6 +233,10 @@ contract Certificate_Verification is Ownable {
         newInstitution.totalPrograms = 0;
     }
 
+    /// @notice Function to set the withdrawal wallet address for an institution
+    /// @dev Only a moderator can call this function
+    /// @param _institutionId ID of the institution
+    /// @param _wallet New withdrawal wallet address to be set
     function setInstitutiontWithdrawalWallet(
         uint256 _institutionId,
         address _wallet
@@ -177,6 +249,11 @@ contract Certificate_Verification is Ownable {
         institutions[_institutionId].withdrawalWallet = payable(_wallet);
     }
 
+    /// @notice Function to set or remove a primary verifier for an institution
+    /// @dev Only a moderator can call this function
+    /// @param _institutionId ID of the institution
+    /// @param _wallet Address of the primary verifier to be set or removed
+    /// @param _flag Boolean flag indicating whether to set or remove the primary verifier (true for set, false for remove)
     function setPrimaryVerifier(
         uint256 _institutionId,
         address _wallet,
@@ -190,6 +267,11 @@ contract Certificate_Verification is Ownable {
         institutions[_institutionId].primaryVerifiers[_wallet] = _flag;
     }
 
+    /// @notice Function to set or remove a secondary verifier for an institution
+    /// @dev Only a moderator can call this function
+    /// @param _institutionId ID of the institution
+    /// @param _wallet Address of the secondary verifier to be set or removed
+    /// @param _flag Boolean flag indicating whether to set or remove the secondary verifier (true for set, false for remove)
     function setSecondaryVerifier(
         uint256 _institutionId,
         address _wallet,
@@ -203,6 +285,12 @@ contract Certificate_Verification is Ownable {
         institutions[_institutionId].secondaryVerifiers[_wallet] = _flag;
     }
 
+    /// @notice Function to add a new educational program to an institution
+    /// @dev Only a moderator can call this function
+    /// @param _institutionId ID of the institution
+    /// @param _programType Type of the program
+    /// @param _title Title of the program
+    /// @param _major Major or subject area of the program
     function addPrograms(
         uint256 _institutionId,
         string memory _programType,
@@ -222,6 +310,15 @@ contract Certificate_Verification is Ownable {
         );
     }
 
+    /// @dev Function to allow a user to apply for certificate verification.
+    /// @param _serialNumber Serial number of the certificate.
+    /// @param _studentName Name of the student.
+    /// @param _studentId ID of the student.
+    /// @param _graduationDate Graduation date of the student.
+    /// @param _dateOfBirth Date of birth of the student.
+    /// @param _institutionId ID of the institution.
+    /// @param _programId ID of the program.
+    /// @param _ipfsUrl IPFS URL for additional information.
     function applyForVerification(
         string memory _serialNumber,
         string memory _studentName,
@@ -275,6 +372,8 @@ contract Certificate_Verification is Ownable {
         );
     }
 
+    /// @dev Function for primary verification of a certificate by a primary verifier.
+    /// @param _certificateId ID of the certificate.
     function primaryVerify(
         uint256 _certificateId
     )
@@ -294,11 +393,16 @@ contract Certificate_Verification is Ownable {
         emit Verified(certificates[_certificateId], "primary");
     }
 
+    /// @dev Function for secondary verification of a certificate by a secondary verifier.
+    /// @param _certificateId ID of the certificate.
     function verify(
         uint256 _certificateId
     )
         external
-        validVerifier(certificates[_certificateId].institutionId, msg.sender)
+        validSecondaryVerifier(
+            certificates[_certificateId].institutionId,
+            msg.sender
+        )
     {
         if (_certificateId < 1 || _certificateId > totalCertificate) {
             revert InvalidCertificateId();
@@ -317,6 +421,8 @@ contract Certificate_Verification is Ownable {
         emit Verified(certificates[_certificateId], "secondary");
     }
 
+    /// @dev Function to retrieve certificates by applicant address.
+    /// @param _address Address of the applicant.
     function getCertificatesByApplicant(
         address _address
     ) public view returns (Certificate[] memory data) {
@@ -337,6 +443,8 @@ contract Certificate_Verification is Ownable {
         return data;
     }
 
+    /// @dev Function to retrieve certificates by institution ID.
+    /// @param _institutionId ID of the institution.
     function getCertificatesByInstitutionId(
         uint256 _institutionId
     ) public view returns (Certificate[] memory data) {
@@ -357,6 +465,7 @@ contract Certificate_Verification is Ownable {
         return data;
     }
 
+    /// @dev Function to retrieve institutions.
     function getinstitutions()
         public
         view
@@ -380,6 +489,52 @@ contract Certificate_Verification is Ownable {
             }
 
             datas[i - 1] = institutionDto;
+        }
+        return datas;
+    }
+
+    /// @dev Function to retrieve institutions by primary verifier.
+    /// @param wallet Address of the primary verifier.
+    function getInstitutionsByPrimaryVerifier(
+        address wallet
+    ) public view returns (uint256[] memory datas) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            Institution storage institution = institutions[i];
+            if (institution.primaryVerifiers[wallet]) {
+                count++;
+            }
+        }
+        datas = new uint256[](count);
+        count = 0;
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            Institution storage institution = institutions[i];
+            if (institution.primaryVerifiers[wallet]) {
+                datas[count] = institution.id;
+            }
+        }
+        return datas;
+    }
+
+    /// @dev Function to retrieve institutions by secondary verifier.
+    /// @param wallet Address of the secondary verifier.
+    function getInstitutionsBySecondaryVerifier(
+        address wallet
+    ) public view returns (uint256[] memory datas) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            Institution storage institution = institutions[i];
+            if (institution.secondaryVerifiers[wallet]) {
+                count++;
+            }
+        }
+        datas = new uint256[](count);
+        count = 0;
+        for (uint256 i = 1; i <= totalInstitution; i++) {
+            Institution storage institution = institutions[i];
+            if (institution.secondaryVerifiers[wallet]) {
+                datas[count] = institution.id;
+            }
         }
         return datas;
     }
