@@ -5,11 +5,11 @@
   { "inputs": [], "name": "AlreadyVerified", "type": "error" },
   { "inputs": [], "name": "InvalidAddress", "type": "error" },
   { "inputs": [], "name": "InvalidCertificateId", "type": "error" },
-  { "inputs": [], "name": "InvalidInstituition", "type": "error" },
+  { "inputs": [], "name": "InvalidInstitution", "type": "error" },
   { "inputs": [], "name": "InvalidModerator", "type": "error" },
   { "inputs": [], "name": "InvalidPrimaryVerifier", "type": "error" },
   { "inputs": [], "name": "InvalidProgram", "type": "error" },
-  { "inputs": [], "name": "InvalidVerifier", "type": "error" },
+  { "inputs": [], "name": "InvalidSecondaryVerifier", "type": "error" },
   {
     "inputs": [
       { "internalType": "address", "name": "owner", "type": "address" }
@@ -317,6 +317,28 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "wallet", "type": "address" }
+    ],
+    "name": "getInstitutionsByPrimaryVerifier",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "datas", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "wallet", "type": "address" }
+    ],
+    "name": "getInstitutionsBySecondaryVerifier",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "datas", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getinstitutions",
     "outputs": [
@@ -347,9 +369,9 @@
               { "internalType": "string", "name": "title", "type": "string" },
               { "internalType": "string", "name": "major", "type": "string" }
             ],
-            "internalType": "struct Certificate_Verification.Program[100]",
+            "internalType": "struct Certificate_Verification.Program[20]",
             "name": "programs",
-            "type": "tuple[100]"
+            "type": "tuple[20]"
           }
         ],
         "internalType": "struct Certificate_Verification.InstitutionDto[]",

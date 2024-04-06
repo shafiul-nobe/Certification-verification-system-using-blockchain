@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import erc20ABI from "../config/erc20ABI.json";
+import erc20ABI from "../../config/erc20ABI.json";
 import { ethers } from "ethers";
-import ethereumConfig from "../config/ethereum";
+import ethereumConfig from "../../config/ethereum";
 import { Link } from "react-router-dom";
 
-const Student = () => {
+const SecondaryVerification = () => {
   const [certificates, setCertificates] = useState([]);
   const [detailsIdx, setDetailsIdx] = useState(-1);
   const getCertificates = async () => {
@@ -18,12 +18,18 @@ const Student = () => {
       signer
     );
 
-    const res = await contract.getCertificatesByApplicant(userAddress);
+    const _res = contract.getinstitutions();
+    const _permitted = contract.getInstitutionsBySecondaryVerifier(userAddress);
+
+    const [res, permitted] = await Promise.all([_res, _permitted]);
+    const permitted_institutes = permitted.map((e, i) => e._hex);
     let reversed = Array.from({ length: res.length });
     res.forEach((item, idx) => {
       reversed[idx] = res[res.length - 1 - idx];
     });
-    setCertificates(reversed);
+    setCertificates(
+      reversed.filter((item) => permitted_institutes.includes(item.id._hex))
+    );
   };
 
   useEffect(() => {
@@ -32,7 +38,7 @@ const Student = () => {
 
   if (!window.ethereum) return <div>Install Metamask in Your Browser</div>;
   return (
-    <div className="p-10 bg-gradient-to-t from-gray-800 to-gray-700 min-h-[80vh]">
+    <div className="p-10 bg-gradient-to-t from-cyan-950 to-teal-800 min-h-[80vh]">
       <div className="grid grid-cols-3 bg-gray-800 shadow-lg p-3 rounded-lg mb-6">
         <div className="flex justify-start items-center">
           <button className="p-2" onClick={() => window.history.back()}>
@@ -40,13 +46,9 @@ const Student = () => {
           </button>
         </div>
         <div className="flex justify-center items-center text-2xl font-semibold ">
-          Student Panel
+          Secondary Verification
         </div>
-        <div className="flex justify-end items-center">
-          <Link to="/student/apply">
-            <button className="btn btn-primary">Apply</button>
-          </Link>
-        </div>
+        <div className="flex justify-end items-center"></div>
       </div>
       <dialog id="certificate-desc" className="modal">
         <div className="modal-box">
@@ -58,7 +60,7 @@ const Student = () => {
           </div>
           <div className="grid grid-cols-3">
             <div className="col-span-1 border border-collapse border-gray-500 p-2">
-              Student ID
+              Institute Name
             </div>
             <div className="col-span-2 border border-collapse border-gray-500 p-2">
               {certificates[detailsIdx]?.studentId}
@@ -106,48 +108,33 @@ const Student = () => {
           <thead>
             <tr>
               <th></th>
-              <th>Student ID</th>
-              <th>Student Name</th>
-              <th>Serial Number</th>
-              <th>Graduation Date</th>
-              <th>Date of Birth</th>
-              <th align="center">Status</th>
+              <th>Institute Name</th>
+              <th>Location</th>
+              <th>Country</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {certificates.length === 0 ? (
               <tr>
-                <td colSpan={7} align="center">
+                <td colSpan={5} align="center">
                   No data found
                 </td>
               </tr>
             ) : (
               certificates.map((cert, idx) => {
                 return (
-                  <tr
-                    key={idx}
-                    onClick={() => {
-                      setDetailsIdx(idx);
-                      document.getElementById("certificate-desc").showModal();
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <th>{idx}</th>
-                    <td>{cert.studentId}</td>
-                    <td>{cert.studentName}</td>
-                    <td>{cert.serialnumber}</td>
-                    <td>{cert.graduationDate}</td>
-                    <td>{cert.dateOfBirth}</td>
-                    <td align="center">
-                      {cert.verified ? (
-                        <span className="text-green-500">Verified</span>
-                      ) : cert.primaryVerified ? (
-                        <span className="text-yellow-500">
-                          Primary Verified
-                        </span>
-                      ) : (
-                        <span className="text-red-500">Not Verified</span>
-                      )}
+                  <tr key={idx}>
+                    <th>{idx + 1}</th>
+                    <td>{cert.name}</td>
+                    <td>{cert.location}</td>
+                    <td>{cert.country}</td>
+                    <td>
+                      <Link to={`/secondary-verifier/${parseInt(cert.id, 16)}`}>
+                        <button className="btn btn-outline btn-primary">
+                          Enter
+                        </button>
+                      </Link>
                     </td>
                   </tr>
                 );
@@ -160,4 +147,4 @@ const Student = () => {
   );
 };
 
-export default Student;
+export default SecondaryVerification;
