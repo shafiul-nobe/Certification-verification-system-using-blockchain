@@ -4,7 +4,8 @@ import erc20ABI from "../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../config/ethereum";
 import Success from "../components/Success/Success";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ErrorAnimation from "../components/Error/ErrorAnimation";
 
 function ApplyForVerification() {
   const [inputs, setInputs] = useState({
@@ -61,9 +62,9 @@ function ApplyForVerification() {
     }));
   };
 
-  const [formStatus, setFormStatus] = useState("init"); // init | processing | success
+  const [formStatus, setFormStatus] = useState("init"); // init | processing | success | error
   const modalRef = useRef(null);
-  const navigate = useNavigate();
+  const [trxHash, setTrxHash] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,14 +115,12 @@ function ApplyForVerification() {
       );
 
       const receipt = await res.wait();
-
+      console.log(receipt);
+      setTrxHash(receipt.transactionHash);
       setFormStatus("success");
-
-      setTimeout(() => {
-        navigate("/student");
-      }, 2000);
     } catch (error) {
       console.error(error);
+      setFormStatus("error");
     }
   };
 
@@ -173,7 +172,7 @@ function ApplyForVerification() {
   }, [inputs._institutionId]);
 
   return (
-    <div className="px-10 pt-6 pb-10">
+    <div className="px-6 md:px-10 pt-6 pb-10 bg-gray-800">
       <dialog id="processing_modal" ref={modalRef} className="modal">
         <div className="modal-box">
           {formStatus === "processing" ? (
@@ -183,12 +182,62 @@ function ApplyForVerification() {
             </div>
           ) : null}
 
-          {formStatus === "success" ? <Success /> : null}
+          {formStatus === "success" ? (
+            <div>
+              <Success />
+              <div className="text-center">
+                Your application has been successfully submitted for
+                verification.
+              </div>
+              <div className="break-all mt-3">
+                Transaction Hash:{" "}
+                <span className="bg-gray-200/20 px-2 rounded-md text-gray-200">
+                  {trxHash}
+                </span>
+              </div>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${trxHash}`}
+                target="_blank"
+                className="btn btn-primary w-full mt-4"
+              >
+                View in Blockchain
+              </a>
+              <Link
+                to="/student"
+                className="btn btn-outline btn-error w-full mt-3"
+              >
+                Close
+              </Link>
+            </div>
+          ) : null}
+
+          {formStatus === "error" ? (
+            <div className="flex flex-col justify-center items-center w-full">
+              <ErrorAnimation />
+              <div className="text-center text-red-500 mt-3">
+                Submission failed!
+              </div>
+
+              <form method="dialog w-full">
+                <button className="btn btn-outline btn-error w-full mt-3">
+                  Close
+                </button>
+              </form>
+            </div>
+          ) : null}
         </div>
       </dialog>
       <div>
-        <div className="w-full flex justify-center items-center mb-6">
-          <h1 className="text-2xl font-semibold">Apply For Verification</h1>
+        <div className="grid grid-cols-3 bg-gray-900 shadow-lg p-3 rounded-lg mb-6">
+          <div className="flex justify-start items-center">
+            <button className="p-2" onClick={() => window.history.back()}>
+              Back
+            </button>
+          </div>
+          <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
+            Apply for Verification
+          </div>
+          <div className="flex justify-end items-center"></div>
         </div>
         <form className="flex justify-center items-center">
           <div className="grid grid-cols-1 gap-4 w-[500px]">

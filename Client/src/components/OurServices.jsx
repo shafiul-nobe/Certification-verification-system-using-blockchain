@@ -7,8 +7,8 @@ const OurServices = () => {
       <div className="w-full flex justify-center items-center mb-12">
         <h1 className="text-3xl font-bold uppercase">Our Services</h1>
       </div>
-      <div className="flex justify-center items-center gap-10">
-        <div className="card w-96 bg-base-100 shadow-xl">
+      <div className="flex flex-col lg:flex-row justify-center items-center gap-10">
+        <div className="card w-80 md:w-96 bg-base-100 shadow-xl">
           <figure>
             <img
               src="/images/student.png"
@@ -29,7 +29,7 @@ const OurServices = () => {
           </div>
         </div>
 
-        <div className="card w-96 bg-base-100 shadow-xl">
+        <div className="card w-80 md:w-96 bg-base-100 shadow-xl">
           <figure>
             <img
               src="/images/primary-verifier.png"
@@ -43,14 +43,14 @@ const OurServices = () => {
             <h2 className="card-title">Primary Verifier</h2>
             <p>You can do primary verification of certificates</p>
             <div className="card-actions justify-end">
-              <Link to="/student" className="btn btn-primary">
+              <Link to="/primary-verifier" className="btn btn-primary">
                 Go to Primary Verifier Panel
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="card w-96 bg-base-100 shadow-xl">
+        <div className="card w-80 md:w-96 bg-base-100 shadow-xl">
           <figure>
             <img
               src="/images/secondary-verifier.png"
@@ -64,44 +64,12 @@ const OurServices = () => {
             <h2 className="card-title">Secondary Verifier</h2>
             <p>You can do secondary verification of certificates</p>
             <div className="card-actions justify-end">
-              <Link to="/student" className="btn btn-primary">
+              <Link to="/secondary-verifier" className="btn btn-primary">
                 Go to Secondary Verifier Panel
               </Link>
             </div>
           </div>
         </div>
-
-        {/* <div className="card w-96 bg-base-100 shadow-xl">
-          <figure>
-            <img
-              src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body">
-            <h2 className="card-title">Shoes!</h2>
-            <p>If a dog chews shoes whose shoes does he choose?</p>
-            <div className="card-actions justify-end">
-              <button className="btn btn-primary">Buy Now</button>
-            </div>
-          </div>
-        </div>
-
-        <div className="card w-96 bg-base-100 shadow-xl">
-          <figure>
-            <img
-              src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body">
-            <h2 className="card-title">Shoes!</h2>
-            <p>If a dog chews shoes whose shoes does he choose?</p>
-            <div className="card-actions justify-end">
-              <button className="btn btn-primary">Buy Now</button>
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );
