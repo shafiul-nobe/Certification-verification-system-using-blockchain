@@ -55,8 +55,8 @@ const OurServices = () => {
             <img
               src="/images/secondary-verifier.png"
               alt="Shoes"
-              height={270}
-              width={270}
+              height={300}
+              width={300}
               className="rounded-md mt-6"
             />
           </figure>

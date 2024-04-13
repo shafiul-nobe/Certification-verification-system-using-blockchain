@@ -12,7 +12,7 @@ import SecondaryVerification from "./pages/secondary-verifier/SecondaryVerificat
 
 function App() {
   return (
-    <div>
+    <div className="source-sans-3">
       <ScrollTop />
       <TopNav />
       <Routes>

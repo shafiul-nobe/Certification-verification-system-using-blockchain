@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import ethereumConfig from "../../../config/ethereum";
 import { Link, useParams } from "react-router-dom";
 import Success from "../../../components/Success/Success";
+import { IoHome } from "react-icons/io5";
+import { FaArrowLeft } from "react-icons/fa";
 
 const CertificatesOfInstitute = () => {
   const [certificates, setCertificates] = useState([]);
@@ -74,13 +76,26 @@ const CertificatesOfInstitute = () => {
   return (
     <div className="p-4 md:p-10 bg-gradient-to-t from-cyan-950 to-teal-800 min-h-[80vh]">
       <div className="grid grid-cols-3 bg-gray-800 shadow-lg p-3 rounded-lg mb-6">
-        <div className="flex justify-start items-center">
+        <div className="flex justify-start items-center gap-4">
           <button className="p-2" onClick={() => window.history.back()}>
-            Back
+            <FaArrowLeft />
           </button>
+          <div className="flex justify-start items-center gap-2">
+            <Link to="/">
+              <IoHome size={18} />
+            </Link>
+            <span>/</span>
+            <Link to="/secondary-verifier" className="font-semibold">
+              Secondary Verifier
+            </Link>
+            <span>/</span>
+            <span className="text-gray-400">
+              Certificates of {institueInfo.name}
+            </span>
+          </div>
         </div>
-        <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
-          Certificates of {institueInfo.name}
+        <div className="flex justify-center items-center text-base md:text-xl font-semibold ">
+          {institueInfo.name?.toUpperCase()}
         </div>
         <div className="flex justify-end items-center"></div>
       </div>
@@ -142,7 +157,10 @@ const CertificatesOfInstitute = () => {
       <dialog id="certificate-desc" className="modal">
         <div className="modal-box">
           <div className="w-full">
-            <img src={certificates[detailsIdx]?.ipfsUrl} className="w-full" />
+            <img
+              src={certificates[detailsIdx]?.ipfsUrl}
+              className="w-full min-h-[16rem] bg-gray-400 rounded"
+            />
           </div>
           <div className="w-full flex justify-center items-center pt-3 pb-2 text-lg font-semibold">
             Details
@@ -228,6 +246,7 @@ const CertificatesOfInstitute = () => {
               </tr>
             ) : (
               certificates.map((cert, idx) => {
+                if (!cert.primaryVerified) return null;
                 return (
                   <tr
                     key={idx}

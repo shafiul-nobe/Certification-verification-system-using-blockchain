@@ -3,6 +3,8 @@ import erc20ABI from "../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../config/ethereum";
 import { Link } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
 
 const Student = () => {
   const [certificates, setCertificates] = useState([]);
@@ -34,17 +36,27 @@ const Student = () => {
   return (
     <div className="p-4 md:p-10 bg-gradient-to-t from-gray-800 to-gray-700 min-h-[80vh]">
       <div className="grid grid-cols-3 bg-gray-800 shadow-lg p-3 rounded-lg mb-6">
-        <div className="flex justify-start items-center">
+        <div className="flex justify-start items-center gap-4">
           <button className="p-2" onClick={() => window.history.back()}>
-            Back
+            <FaArrowLeft />
           </button>
+          <div className="flex justify-start items-center gap-2">
+            <Link to="/">
+              <IoHome size={18} />
+            </Link>
+            <span>/</span>
+            <span className="text-gray-400">Student Panel</span>
+          </div>
         </div>
-        <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
+        <div className="flex justify-center items-center text-base md:text-xl font-semibold ">
           Student Panel
         </div>
         <div className="flex justify-end items-center">
-          <Link to="/student/apply">
-            <button className="btn btn-primary">Apply</button>
+          <Link
+            to="/student/apply"
+            className="bg-primary text-gray-700 font-semibold px-3 py-1.5 rounded-md"
+          >
+            Apply
           </Link>
         </div>
       </div>

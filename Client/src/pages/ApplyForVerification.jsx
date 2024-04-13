@@ -6,6 +6,8 @@ import ethereumConfig from "../config/ethereum";
 import Success from "../components/Success/Success";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorAnimation from "../components/Error/ErrorAnimation";
+import { FaArrowLeft } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
 
 function ApplyForVerification() {
   const [inputs, setInputs] = useState({
@@ -178,7 +180,7 @@ function ApplyForVerification() {
   }, [inputs._institutionId]);
 
   return (
-    <div className="px-6 md:px-10 pt-6 pb-10 bg-gray-800">
+    <div className="px-6 md:px-10 pt-10 pb-10 bg-gray-800">
       <dialog id="processing_modal" ref={modalRef} className="modal">
         <div className="modal-box">
           {formStatus === "processing" ? (
@@ -235,12 +237,23 @@ function ApplyForVerification() {
       </dialog>
       <div>
         <div className="grid grid-cols-3 bg-gray-900 shadow-lg p-3 rounded-lg mb-6">
-          <div className="flex justify-start items-center">
+          <div className="flex justify-start items-center gap-4">
             <button className="p-2" onClick={() => window.history.back()}>
-              Back
+              <FaArrowLeft />
             </button>
+            <div className="flex justify-start items-center gap-2">
+              <Link to="/">
+                <IoHome size={18} />
+              </Link>
+              <span>/</span>
+              <Link to="/student" className="font-semibold">
+                Student Panel
+              </Link>
+              <span>/</span>
+              <span className="text-gray-400">Apply for Verification</span>
+            </div>
           </div>
-          <div className="flex justify-center items-center text-base md:text-2xl font-semibold ">
+          <div className="flex justify-center items-center text-base md:text-xl font-semibold ">
             Apply for Verification
           </div>
           <div className="flex justify-end items-center"></div>
