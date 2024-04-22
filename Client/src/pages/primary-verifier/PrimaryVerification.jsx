@@ -112,10 +112,10 @@ const PrimaryVerification = () => {
           </form>
         </div>
       </dialog>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-indigo-400/20 backdrop-blur-lg rounded-md shadow-lg">
         <table className="table">
           <thead>
-            <tr>
+            <tr className="text-base">
               <th></th>
               <th>Institute Name</th>
               <th>Location</th>

@@ -4,7 +4,7 @@ import erc20ABI from "../config/erc20ABI.json";
 import { ethers } from "ethers";
 import ethereumConfig from "../config/ethereum";
 import Success from "../components/Success/Success";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ErrorAnimation from "../components/Error/ErrorAnimation";
 import { FaArrowLeft } from "react-icons/fa";
 import { IoHome } from "react-icons/io5";
@@ -80,6 +80,8 @@ function ApplyForVerification() {
         _ipfsUrl: imageUrl,
       };
 
+      console.log(data);
+
       let valid = true;
       for (const key in data) {
         if (data[key] === "") valid = false;
@@ -102,14 +104,16 @@ function ApplyForVerification() {
         signer
       );
 
+      console.log(parseInt(data._programId), parseInt(data._institutionId));
+
       const res = await contract.applyForVerification(
         data._serialNumber,
         data._studentName,
         data._studentId,
         data._graduationDate,
         data._dateOfBirth,
-        1,
-        1,
+        parseInt(data._institutionId),
+        parseInt(data._programId),
         data._ipfsUrl,
         {
           gasLimit: ethers.utils.hexlify(7500000),
@@ -118,7 +122,7 @@ function ApplyForVerification() {
       );
 
       const receipt = await res.wait();
-      console.log(receipt);
+      // console.log(receipt);
       setTrxHash(receipt.transactionHash);
       setFormStatus("success");
     } catch (error) {
@@ -376,7 +380,7 @@ function ApplyForVerification() {
                 <option value={""}>Select Your Program</option>
                 {programs.map((prog, index) => {
                   return (
-                    <option key={index} value={index}>
+                    <option key={index} value={parseInt(prog.id, 16)}>
                       {`${prog.programType} in ${prog.title}`}
                     </option>
                   );

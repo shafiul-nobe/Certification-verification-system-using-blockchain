@@ -339,6 +339,47 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_certificateId", "type": "uint256" }
+    ],
+    "name": "getOnlyVerifiedCertificateByID",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          {
+            "internalType": "string",
+            "name": "serialnumber",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "studentName", "type": "string" },
+          { "internalType": "string", "name": "studentId", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "graduationDate",
+            "type": "string"
+          },
+          { "internalType": "string", "name": "dateOfBirth", "type": "string" },
+          { "internalType": "uint256", "name": "programId", "type": "uint256" },
+          {
+            "internalType": "uint256",
+            "name": "institutionId",
+            "type": "uint256"
+          },
+          { "internalType": "string", "name": "ipfsUrl", "type": "string" },
+          { "internalType": "address", "name": "applicant", "type": "address" },
+          { "internalType": "bool", "name": "primaryVerified", "type": "bool" },
+          { "internalType": "bool", "name": "verified", "type": "bool" }
+        ],
+        "internalType": "struct Certificate_Verification.Certificate",
+        "name": "data",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getinstitutions",
     "outputs": [

@@ -112,10 +112,10 @@ const SecondaryVerification = () => {
           </form>
         </div>
       </dialog>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-teal-400/30 backdrop-blur-lg rounded-md shadow-lg">
         <table className="table">
           <thead>
-            <tr>
+            <tr className="text-base">
               <th></th>
               <th>Institute Name</th>
               <th>Location</th>

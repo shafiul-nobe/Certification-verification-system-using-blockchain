@@ -9,6 +9,7 @@ import PrimaryCerts from "./pages/primary-verifier/[id]/CertificatesOfInstitute"
 import SecondaryCerts from "./pages/secondary-verifier/[id]/CertificatesOfInstitute";
 import ScrollTop from "./components/ScrollTop";
 import SecondaryVerification from "./pages/secondary-verifier/SecondaryVerification";
+import VerifyCertificates from "./pages/certificates/verify/VerifyCertificates";
 
 function App() {
   return (
@@ -23,6 +24,10 @@ function App() {
         <Route path="/primary-verifier/:id" element={<PrimaryCerts />} />
         <Route path="/secondary-verifier" element={<SecondaryVerification />} />
         <Route path="/secondary-verifier/:id" element={<SecondaryCerts />} />
+        <Route
+          path="/certificates/verify/:id"
+          element={<VerifyCertificates />}
+        />
       </Routes>
       <Footer />
     </div>

@@ -1,5 +1,5 @@
 const ethereumConfig = {
-  address: "0x6b137BE90CFC9Ec9a47C60a32305f99ae193185c",
+  address: "0x713757241d6939Abec5271469BBC0a4D0c5E481A",
 };
 
 export default ethereumConfig;

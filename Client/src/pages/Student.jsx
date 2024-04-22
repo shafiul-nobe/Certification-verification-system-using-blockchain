@@ -5,10 +5,14 @@ import ethereumConfig from "../config/ethereum";
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { IoHome } from "react-icons/io5";
+import { LuLink2 } from "react-icons/lu";
+import { TiTick } from "react-icons/ti";
 
 const Student = () => {
   const [certificates, setCertificates] = useState([]);
   const [detailsIdx, setDetailsIdx] = useState(-1);
+  const [copied, setCopied] = useState(false);
+
   const getCertificates = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
@@ -21,6 +25,7 @@ const Student = () => {
     );
 
     const res = await contract.getCertificatesByApplicant(userAddress);
+
     let reversed = Array.from({ length: res.length });
     res.forEach((item, idx) => {
       reversed[idx] = res[res.length - 1 - idx];
@@ -54,7 +59,7 @@ const Student = () => {
         <div className="flex justify-end items-center">
           <Link
             to="/student/apply"
-            className="bg-primary text-gray-700 font-semibold px-3 py-1.5 rounded-md"
+            className="bg-primary text-gray-700 font-semibold px-3 py-2 text-lg rounded-md"
           >
             Apply
           </Link>
@@ -111,15 +116,48 @@ const Student = () => {
                 : "Not Verified"}
             </div>
           </div>
+          {certificates[detailsIdx]?.verified ? (
+            <button
+              className="btn btn-primary w-full mt-3"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(
+                    `${window.location.origin}/certificates/verify/${certificates[detailsIdx]?.id}`
+                  )
+                  .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 3000);
+                  });
+              }}
+            >
+              {copied ? (
+                <>
+                  <TiTick /> Copied
+                </>
+              ) : (
+                <>
+                  <LuLink2 /> Copy Sharable Link
+                </>
+              )}
+            </button>
+          ) : null}
+
           <form method="dialog" className="modal-backdrop">
-            <button className="btn btn-error w-full mt-3">Close</button>
+            <button
+              className="btn btn-outline btn-error w-full mt-3"
+              onClick={() => {
+                setTimeout(() => setCopied(false), 400);
+              }}
+            >
+              Close
+            </button>
           </form>
         </div>
       </dialog>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-gray-400/20 backdrop-blur-lg rounded-md shadow-lg">
         <table className="table">
           <thead>
-            <tr>
+            <tr className="text-base">
               <th></th>
               <th>Student ID</th>
               <th>Student Name</th>
@@ -140,14 +178,14 @@ const Student = () => {
               certificates.map((cert, idx) => {
                 return (
                   <tr
-                    key={idx}
+                    key={idx + 1}
                     onClick={() => {
                       setDetailsIdx(idx);
                       document.getElementById("certificate-desc").showModal();
                     }}
                     className="cursor-pointer hover:bg-gray-500/30"
                   >
-                    <th>{idx}</th>
+                    <th>{parseInt(cert.id._hex, 16)}</th>
                     <td>{cert.studentId}</td>
                     <td>{cert.studentName}</td>
                     <td>{cert.serialnumber}</td>

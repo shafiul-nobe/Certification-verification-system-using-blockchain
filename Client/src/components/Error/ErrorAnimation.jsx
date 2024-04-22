@@ -8,7 +8,7 @@ const ErrorAnimation = () => {
         viewBox="0 0 87 87"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
       >
         <g id="Page-1" stroke="none" fill="none" fillRule="evenodd">
           <g id="Group-2" transform="translate(2.000000, 2.000000)">

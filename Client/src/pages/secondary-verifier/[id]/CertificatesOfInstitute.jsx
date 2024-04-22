@@ -15,6 +15,9 @@ const CertificatesOfInstitute = () => {
   const [verificationProcessStatus, setVerificationProcessStatus] =
     useState("init");
   const [trxHash, setTrxHash] = useState(null);
+  const [aboutInstitues, setAboutInstitues] = useState({});
+  const [programInfo, setProgramInfo] = useState([]);
+  const [dataLength, setDataLength] = useState(0);
 
   const params = useParams();
 
@@ -31,13 +34,36 @@ const CertificatesOfInstitute = () => {
 
     const _res = contract.getCertificatesByInstitutionId(params.id);
     const _institueInfo = contract.institutions(params.id);
-    const [res, institueInfo] = await Promise.all([_res, _institueInfo]);
+    const _allInstitutes = contract.getinstitutions();
+
+    const [res, institueInfo, allInstitutes] = await Promise.all([
+      _res,
+      _institueInfo,
+      _allInstitutes,
+    ]);
     setInstitueInfo(institueInfo);
 
-    let reversed = Array.from({ length: res.length });
-    res.forEach((item, idx) => {
-      reversed[idx] = res[res.length - 1 - idx];
-    });
+    setAboutInstitues(
+      allInstitutes.filter(
+        (e) => parseInt(e.id._hex, 16) === parseInt(params.id)
+      )[0]
+    );
+
+    setProgramInfo(
+      allInstitutes
+        .filter((e) => parseInt(e.id._hex, 16) === parseInt(params.id))[0]
+        .programs.filter((e) => e[1] !== "")
+    );
+
+    let reversed = [];
+
+    for (let i = res.length - 1; i >= 0; i--) {
+      if (res[i].primaryVerified && !res[i].verified) {
+        reversed.push(res[i]);
+      }
+    }
+    setDataLength(reversed.length);
+
     setCertificates(reversed);
   };
 
@@ -167,7 +193,7 @@ const CertificatesOfInstitute = () => {
           </div>
           <div className="grid grid-cols-3">
             <div className="col-span-1 border border-collapse border-gray-500 p-2">
-              Institute Name
+              Student ID
             </div>
             <div className="col-span-2 border border-collapse border-gray-500 p-2">
               {certificates[detailsIdx]?.studentId}
@@ -181,17 +207,46 @@ const CertificatesOfInstitute = () => {
             </div>
 
             <div className="col-span-1 border border-collapse border-gray-500 p-2">
-              Graduation Date
-            </div>
-            <div className="col-span-2 border border-collapse border-gray-500 p-2">
-              {certificates[detailsIdx]?.graduationDate}
-            </div>
-
-            <div className="col-span-1 border border-collapse border-gray-500 p-2">
               Date of Birth
             </div>
             <div className="col-span-2 border border-collapse border-gray-500 p-2">
               {certificates[detailsIdx]?.dateOfBirth}
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Institute Name
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 uppercase">
+              {aboutInstitues.name}
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Program Type
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 capitalize">
+              {
+                programInfo.filter((e) => {
+                  return e.id._hex === certificates[detailsIdx]?.programId._hex;
+                })[0]?.programType
+              }
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Major
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 capitalize">
+              {
+                programInfo.filter((e) => {
+                  return e.id._hex === certificates[detailsIdx]?.programId._hex;
+                })[0]?.major
+              }
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Graduation Date
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2">
+              {certificates[detailsIdx]?.graduationDate}
             </div>
 
             <div className="col-span-1 border border-collapse border-gray-500 p-2">
@@ -224,29 +279,29 @@ const CertificatesOfInstitute = () => {
           </form>
         </div>
       </dialog>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-teal-400/30 backdrop-blur-lg rounded-md shadow-lg">
         <table className="table">
           <thead>
             <tr className="text-base">
-              <th></th>
+              <th>ID</th>
               <th>Student ID</th>
               <th>Student Name</th>
               <th>Serial Number</th>
-              <th>Graduation Date</th>
-              <th>Date of Birth</th>
+              <th align="center">Program Type</th>
+              <th align="center">Major</th>
+              <th align="center">Graduation Date</th>
               <th align="center">Status</th>
             </tr>
           </thead>
           <tbody>
-            {certificates.length === 0 ? (
+            {dataLength === 0 ? (
               <tr>
-                <td colSpan={7} align="center">
-                  No data found
+                <td colSpan={8} align="center">
+                  No new request for verification
                 </td>
               </tr>
             ) : (
               certificates.map((cert, idx) => {
-                if (!cert.primaryVerified) return null;
                 return (
                   <tr
                     key={idx}
@@ -257,12 +312,26 @@ const CertificatesOfInstitute = () => {
                     }}
                     className="cursor-pointer hover:bg-teal-500/40"
                   >
-                    <th>{idx}</th>
+                    <th>{parseInt(cert.id._hex, 16)}</th>
                     <td>{cert.studentId}</td>
                     <td>{cert.studentName}</td>
                     <td>{cert.serialnumber}</td>
-                    <td>{cert.graduationDate}</td>
-                    <td>{cert.dateOfBirth}</td>
+                    <td align="center" className="capitalize">
+                      {
+                        programInfo.filter((e) => {
+                          return e.id._hex === cert.programId._hex;
+                        })[0].programType
+                      }
+                    </td>
+
+                    <td align="center" className="capitalize">
+                      {
+                        programInfo.filter((e) => {
+                          return e.id._hex === cert.programId._hex;
+                        })[0].major
+                      }
+                    </td>
+                    <td align="center">{cert.graduationDate}</td>
                     <td align="center">
                       {cert.verified ? (
                         <span className="text-green-500">Verified</span>

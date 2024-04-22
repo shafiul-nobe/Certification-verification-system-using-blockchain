@@ -1,14 +1,23 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="footer p-10 bg-base-200 text-base-content">
       <nav>
-        <h6 className="footer-title">Services</h6>
-        <a className="link link-hover">Branding</a>
-        <a className="link link-hover">Design</a>
-        <a className="link link-hover">Marketing</a>
-        <a className="link link-hover">Advertisement</a>
+        <h6 className="footer-title">Go To</h6>
+        <Link to="/student" className="link link-hover">
+          Student Panel
+        </Link>
+        <Link to="/primary-verifier" className="link link-hover">
+          Primary Verifier Panel
+        </Link>
+        <Link to="/secondary-verifier" className="link link-hover">
+          Secondary Verifier Panel
+        </Link>
+        <Link to="/" className="link link-hover">
+          Home
+        </Link>
       </nav>
       <nav>
         <h6 className="footer-title">Company</h6>
