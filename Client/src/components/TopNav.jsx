@@ -6,7 +6,7 @@ const TopNav = () => {
   return (
     <div className="navbar bg-base-300 h-20 shadow-md mb-4">
       <div className="flex-1">
-        <Link to="/" className="btn btn-ghost text-xl">
+        <Link to="/" className="ml-4">
           <img src={logo} width={140} />
         </Link>
       </div>
