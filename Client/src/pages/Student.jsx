@@ -12,6 +12,7 @@ const Student = () => {
   const [certificates, setCertificates] = useState([]);
   const [detailsIdx, setDetailsIdx] = useState(-1);
   const [copied, setCopied] = useState(false);
+  const [allInstitutesData, setAboutInstituesData] = useState([]);
 
   const getCertificates = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -24,12 +25,18 @@ const Student = () => {
       signer
     );
 
-    const res = await contract.getCertificatesByApplicant(userAddress);
+    const _res = contract.getCertificatesByApplicant(userAddress);
+    const _allInstitutes = contract.getinstitutions();
+
+    const [res, allInstitutes] = await Promise.all([_res, _allInstitutes]);
+
+    setAboutInstituesData(allInstitutes);
 
     let reversed = Array.from({ length: res.length });
     res.forEach((item, idx) => {
       reversed[idx] = res[res.length - 1 - idx];
     });
+    console.log(reversed);
     setCertificates(reversed);
   };
 
@@ -89,6 +96,76 @@ const Student = () => {
             </div>
             <div className="col-span-2 border border-collapse border-gray-500 p-2">
               {certificates[detailsIdx]?.studentName}
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Institute Name
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 uppercase">
+              {
+                allInstitutesData?.filter((item) => {
+                  return (
+                    item.id._hex ===
+                    certificates[detailsIdx]?.institutionId._hex
+                  );
+                })[0]?.name
+              }
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Program Type
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 capitalize">
+              {
+                allInstitutesData
+                  ?.filter((item) => {
+                    return (
+                      item.id._hex ===
+                      certificates[detailsIdx]?.institutionId._hex
+                    );
+                  })[0]
+                  .programs.filter(
+                    (item) =>
+                      !(
+                        item.major.length === 0 &&
+                        item.programType.length === 0 &&
+                        item.title.length === 0
+                      )
+                  )
+                  .filter((item) => {
+                    return (
+                      item.id._hex === certificates[detailsIdx]?.programId._hex
+                    );
+                  })[0]?.programType
+              }
+            </div>
+
+            <div className="col-span-1 border border-collapse border-gray-500 p-2">
+              Major
+            </div>
+            <div className="col-span-2 border border-collapse border-gray-500 p-2 capitalize">
+              {
+                allInstitutesData
+                  ?.filter((item) => {
+                    return (
+                      item.id._hex ===
+                      certificates[detailsIdx]?.institutionId._hex
+                    );
+                  })[0]
+                  .programs.filter(
+                    (item) =>
+                      !(
+                        item.major.length === 0 &&
+                        item.programType.length === 0 &&
+                        item.title.length === 0
+                      )
+                  )
+                  .filter((item) => {
+                    return (
+                      item.id._hex === certificates[detailsIdx]?.programId._hex
+                    );
+                  })[0]?.title
+              }
             </div>
 
             <div className="col-span-1 border border-collapse border-gray-500 p-2">
@@ -161,6 +238,9 @@ const Student = () => {
               <th></th>
               <th>Student ID</th>
               <th>Student Name</th>
+              <th>Institute Name</th>
+              <th>Program Name</th>
+              <th>Major</th>
               <th>Serial Number</th>
               <th>Graduation Date</th>
               <th>Date of Birth</th>
@@ -188,6 +268,52 @@ const Student = () => {
                     <th>{parseInt(cert.id._hex, 16)}</th>
                     <td>{cert.studentId}</td>
                     <td>{cert.studentName}</td>
+                    <td className="text-center">
+                      {
+                        allInstitutesData?.filter((item) => {
+                          return item.id._hex === cert.institutionId._hex;
+                        })[0]?.name
+                      }
+                    </td>
+                    <td className="capitalize">
+                      {
+                        allInstitutesData
+                          ?.filter((item) => {
+                            return item.id._hex === cert.institutionId._hex;
+                          })[0]
+                          .programs.filter(
+                            (item) =>
+                              !(
+                                item.major.length === 0 &&
+                                item.programType.length === 0 &&
+                                item.title.length === 0
+                              )
+                          )
+                          .filter((item) => {
+                            return item.id._hex === cert.programId._hex;
+                          })[0].programType
+                      }
+                    </td>
+                    <td className="capitalize">
+                      {
+                        allInstitutesData
+                          ?.filter((item) => {
+                            return item.id._hex === cert.institutionId._hex;
+                          })[0]
+                          .programs.filter(
+                            (item) =>
+                              !(
+                                item.major.length === 0 &&
+                                item.programType.length === 0 &&
+                                item.title.length === 0
+                              )
+                          )
+                          .filter((item) => {
+                            return item.id._hex === cert.programId._hex;
+                          })[0].title
+                      }
+                    </td>
+                    {/*  */}
                     <td>{cert.serialnumber}</td>
                     <td>{cert.graduationDate}</td>
                     <td>{cert.dateOfBirth}</td>
