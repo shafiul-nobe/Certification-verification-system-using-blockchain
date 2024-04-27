@@ -124,7 +124,7 @@ const Student = () => {
                       certificates[detailsIdx]?.institutionId._hex
                     );
                   })[0]
-                  .programs.filter(
+                  ?.programs.filter(
                     (item) =>
                       !(
                         item.major.length === 0 &&
@@ -132,7 +132,7 @@ const Student = () => {
                         item.title.length === 0
                       )
                   )
-                  .filter((item) => {
+                  ?.filter((item) => {
                     return (
                       item.id._hex === certificates[detailsIdx]?.programId._hex
                     );
@@ -152,7 +152,7 @@ const Student = () => {
                       certificates[detailsIdx]?.institutionId._hex
                     );
                   })[0]
-                  .programs.filter(
+                  ?.programs.filter(
                     (item) =>
                       !(
                         item.major.length === 0 &&
@@ -160,7 +160,7 @@ const Student = () => {
                         item.title.length === 0
                       )
                   )
-                  .filter((item) => {
+                  ?.filter((item) => {
                     return (
                       item.id._hex === certificates[detailsIdx]?.programId._hex
                     );
@@ -250,7 +250,7 @@ const Student = () => {
           <tbody>
             {certificates.length === 0 ? (
               <tr>
-                <td colSpan={7} align="center">
+                <td colSpan={10} align="center">
                   No data found
                 </td>
               </tr>
