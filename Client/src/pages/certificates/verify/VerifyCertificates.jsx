@@ -203,14 +203,14 @@ const VerifyCertificates = () => {
                   Program Name
                 </div>
                 <div className="col-span-2 border-b border-collapse border-gray-500 p-2 capitalize">
-                  {programInfo.title}
+                  {programInfo.programType}
                 </div>
 
-                <div className="col-span-1 border-b border-r border-collapse border-gray-500 p-2">
+                <div className="col-span-1 border-b border-r border-collapse border-gray-500 p-2 capitalize">
                   Major
                 </div>
                 <div className="col-span-2 border-b border-collapse border-gray-500 p-2">
-                  {certificate.studentId}
+                  {programInfo.major}
                 </div>
 
                 <div className="col-span-1 border-r border-collapse border-gray-500 p-2">
